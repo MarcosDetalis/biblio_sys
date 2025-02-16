@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.0.2
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Servidor: 127.0.0.1
--- Tiempo de generación: 14-05-2021 a las 13:46:05
--- Versión del servidor: 10.4.14-MariaDB
--- Versión de PHP: 7.4.9
+-- Servidor: localhost
+-- Tiempo de generación: 03-04-2024 a las 03:18:05
+-- Versión del servidor: 10.4.32-MariaDB
+-- Versión de PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -32,7 +32,7 @@ CREATE TABLE `autor` (
   `autor` varchar(150) NOT NULL,
   `imagen` varchar(100) NOT NULL,
   `estado` int(11) NOT NULL DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `autor`
@@ -42,6 +42,26 @@ INSERT INTO `autor` (`id`, `autor`, `imagen`, `estado`) VALUES
 (1, 'ultima prueba', 'logo.png', 1),
 (2, 'cambiar el nombre llll', '20210514132528.jpg', 1),
 (3, 'popoiipippi', 'logo.png', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `Carrera`
+--
+
+CREATE TABLE `Carrera` (
+  `id_carrera` int(11) NOT NULL,
+  `carrera` varchar(240) NOT NULL,
+  `estado` varchar(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `Carrera`
+--
+
+INSERT INTO `Carrera` (`id_carrera`, `carrera`, `estado`) VALUES
+(1, 'Ing Informatica', '1'),
+(2, 'Contabilidad', '');
 
 -- --------------------------------------------------------
 
@@ -56,7 +76,7 @@ CREATE TABLE `configuracion` (
   `direccion` text NOT NULL,
   `correo` varchar(100) NOT NULL,
   `foto` varchar(50) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `configuracion`
@@ -75,7 +95,7 @@ CREATE TABLE `detalle_permisos` (
   `id` int(11) NOT NULL,
   `id_usuario` int(11) NOT NULL,
   `id_permiso` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `detalle_permisos`
@@ -98,7 +118,7 @@ CREATE TABLE `editorial` (
   `id` int(11) NOT NULL,
   `editorial` varchar(150) NOT NULL,
   `estado` int(11) NOT NULL DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `editorial`
@@ -106,7 +126,12 @@ CREATE TABLE `editorial` (
 
 INSERT INTO `editorial` (`id`, `editorial`, `estado`) VALUES
 (1, 'Ninguna', 1),
-(2, 'Toribio anyarin', 0);
+(2, 'Toribio anyarin', 0),
+(3, 'q', 1),
+(4, 'sss', 1),
+(5, 'a', 1),
+(6, 'qqqq', 1),
+(7, 'sssasasa', 1);
 
 -- --------------------------------------------------------
 
@@ -123,7 +148,7 @@ CREATE TABLE `estudiante` (
   `direccion` text NOT NULL,
   `telefono` varchar(15) NOT NULL,
   `estado` int(11) NOT NULL DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `estudiante`
@@ -151,7 +176,7 @@ CREATE TABLE `libro` (
   `descripcion` text NOT NULL,
   `imagen` varchar(100) NOT NULL,
   `estado` int(11) NOT NULL DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `libro`
@@ -173,7 +198,7 @@ CREATE TABLE `materia` (
   `id` int(11) NOT NULL,
   `materia` text NOT NULL,
   `estado` int(11) NOT NULL DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `materia`
@@ -195,7 +220,7 @@ CREATE TABLE `permisos` (
   `id` int(11) NOT NULL,
   `nombre` varchar(50) NOT NULL,
   `tipo` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `permisos`
@@ -227,7 +252,7 @@ CREATE TABLE `prestamo` (
   `cantidad` int(11) NOT NULL,
   `observacion` text NOT NULL,
   `estado` int(11) NOT NULL DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `prestamo`
@@ -249,14 +274,14 @@ CREATE TABLE `usuarios` (
   `nombre` varchar(200) NOT NULL,
   `clave` varchar(100) NOT NULL,
   `estado` int(11) NOT NULL DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `usuarios`
 --
 
 INSERT INTO `usuarios` (`id`, `usuario`, `nombre`, `clave`, `estado`) VALUES
-(1, 'admin', 'Angel sifuentes', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 1),
+(1, 'admin', 'Angel sifuentes', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', 1),
 (2, 'angel', 'Vida Informatico', '519ba91a5a5b4afb9dc66f8805ce8c442b6576316c19c6896af2fa9bda6aff71', 1);
 
 --
@@ -268,6 +293,12 @@ INSERT INTO `usuarios` (`id`, `usuario`, `nombre`, `clave`, `estado`) VALUES
 --
 ALTER TABLE `autor`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `Carrera`
+--
+ALTER TABLE `Carrera`
+  ADD PRIMARY KEY (`id_carrera`);
 
 --
 -- Indices de la tabla `configuracion`
@@ -341,6 +372,12 @@ ALTER TABLE `autor`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT de la tabla `Carrera`
+--
+ALTER TABLE `Carrera`
+  MODIFY `id_carrera` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT de la tabla `configuracion`
 --
 ALTER TABLE `configuracion`
@@ -356,7 +393,7 @@ ALTER TABLE `detalle_permisos`
 -- AUTO_INCREMENT de la tabla `editorial`
 --
 ALTER TABLE `editorial`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `estudiante`
