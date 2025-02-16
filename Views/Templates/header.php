@@ -98,9 +98,16 @@
             
             <span class="app-menu__label">Escaner Qr</span></a></li>
 
+          
+            <li><a class="app-menu__item" href="<?php echo base_url; ?>Cketnomas">
+            <i class="app-menu__icon fa fa-file-text"></i>
+            
+            <span class="app-menu__label">cketnomas</span></a></li>
+
 
            
 
         </ul>
     </aside>
     <main class="app-content">
+

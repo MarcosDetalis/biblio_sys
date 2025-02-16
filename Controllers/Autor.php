@@ -130,11 +130,11 @@ class Autor extends Controller
     }
     public function buscarAutor()
     {
-        if (isset($_GET['q'])) {
-            $valor = $_GET['q'];
-            $data = $this->model->buscarAutor($valor);
+       // if (isset($_GET['q'])) {
+         //   $valor = $_GET['q'];
+            $data = $this->model->buscarAutor();
             echo json_encode($data, JSON_UNESCAPED_UNICODE);
             die();
-        }
+        //}
     }
 }

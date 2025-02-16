@@ -23,7 +23,7 @@ class Libros extends Controller
     {
         $data = $this->model->getLibros();
         for ($i = 0; $i < count($data); $i++) {
-            $data[$i]['foto'] = '<img class="img-thumbnail" src="' . base_url . "Assets/img/libros/" . $data[$i]['imagen'] . '" width="100">';
+            $data[$i]['foto'] = '<img class="img-thumbnail" src="'.$data[$i]['imagen'] . '" width="100">';
             if ($data[$i]['estado'] == 1) {
                 $data[$i]['estado'] = '<span class="badge badge-success">Activo</span>';
                 $data[$i]['acciones'] = '<div class="d-flex">
@@ -43,6 +43,7 @@ class Libros extends Controller
     public function registrar()
     {
         $titulo = strClean($_POST['titulo']);
+        $imagenUrl = strClean($_POST['imagenUrl']);
         $autor = strClean($_POST['autor']);
         $editorial = strClean($_POST['editorial']);
         $materia = strClean($_POST['materia']);
@@ -74,7 +75,7 @@ class Libros extends Controller
                 $imgNombre = "logo.png";
             }
             if ($id == "") {
-                $data = $this->model->insertarLibros($titulo, $autor, $editorial, $materia, $cantidad, $num_pagina, $anio_edicion, $descripcion, $imgNombre);
+                $data = $this->model->insertarLibros($titulo, $autor, $editorial, $materia, $cantidad, $num_pagina, $anio_edicion, $descripcion, $imagenUrl);
                 if ($data == "ok") {
                     if (!empty($name)) {
                         move_uploaded_file($tmpName, $destino);
@@ -87,12 +88,12 @@ class Libros extends Controller
                 }
             } else {
                 $imgDelete = $this->model->editLibros($id);
-                if ($imgDelete['imagen'] != 'logo.png') {
-                    if (file_exists("Assets/img/libros/" . $imgDelete['imagen'])) {
-                        unlink("Assets/img/libros/" . $imgDelete['imagen']);
-                    }
-                }
-                $data = $this->model->actualizarLibros($titulo, $autor, $editorial, $materia, $cantidad, $num_pagina, $anio_edicion, $descripcion, $imgNombre, $id);
+                // if ($imgDelete['imagen'] != 'logo.png') {
+                //     if (file_exists("Assets/img/libros/" . $imgDelete['imagen'])) {
+                //         unlink("Assets/img/libros/" . $imgDelete['imagen']);
+                //     }
+                // }
+                $data = $this->model->actualizarLibros($titulo, $autor, $editorial, $materia, $cantidad, $num_pagina, $anio_edicion, $descripcion, $imagenUrl, $id);
                 if ($data == "modificado") {
                     if (!empty($name)) {
                         move_uploaded_file($tmpName, $destino);

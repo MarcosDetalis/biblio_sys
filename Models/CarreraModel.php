@@ -13,13 +13,13 @@ class CarreraModel extends Query
     }
 
 
-    public function insertarCarrera($editorial)
+    public function insertarCarrera($carrera)
     {
-        $verificar = "SELECT * FROM Carrera WHERE carrera = '$editorial'";
+        $verificar = "SELECT * FROM Carrera WHERE carrera = '$carrera'";
         $existe = $this->select($verificar);
         if (empty($existe)) {
             $query = "INSERT INTO Carrera(carrera) VALUES (?)";
-            $datos = array($editorial);
+            $datos = array($carrera);
             $data = $this->save($query, $datos);
             if ($data == 1) {
                 $res = "ok";
@@ -36,16 +36,16 @@ class CarreraModel extends Query
 
 
 
-    public function editEditorial($id)
+    public function editCarrera($id)
     {
-        $sql = "SELECT * FROM editorial WHERE id = $id";
+        $sql = "SELECT * FROM Carrera WHERE id_carrera = $id";
         $res = $this->select($sql);
         return $res;
     }
-    public function actualizarEditorial($editorial, $id)
+    public function actualizarCarrera($carrera, $id)
     {
-        $query = "UPDATE editorial SET editorial = ? WHERE id = ?";
-        $datos = array($editorial, $id);
+        $query = "UPDATE Carrera SET carrera = ? WHERE id_carrera = ?";
+        $datos = array($carrera, $id);
         $data = $this->save($query, $datos);
         if ($data == 1) {
             $res = "modificado";
@@ -54,9 +54,9 @@ class CarreraModel extends Query
         }
         return $res;
     }
-    public function estadoEditorial($estado, $id)
+    public function estadoCarrera($estado, $id)
     {
-        $query = "UPDATE editorial SET estado = ? WHERE id = ?";
+        $query = "UPDATE Carrera SET estado = ? WHERE id_carrera = ?";
         $datos = array($estado, $id);
         $data = $this->save($query, $datos);
         return $data;

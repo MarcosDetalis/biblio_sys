@@ -64,9 +64,9 @@ class AutorModel extends Query
         }
         return $tiene;
     }
-    public function buscarAutor($valor)
+    public function buscarAutor()
     {
-        $sql = "SELECT id, autor AS text FROM autor WHERE autor LIKE '%" . $valor . "%'  AND estado = 1 LIMIT 10";
+        $sql = "SELECT id, autor AS text FROM autor WHERE  estado = 1 LIMIT 10";
         $data = $this->selectAll($sql);
         return $data;
     }

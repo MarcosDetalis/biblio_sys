@@ -31,14 +31,18 @@ class LibrosModel extends Query
     }
     public function editLibros($id)
     {
-        $sql = "SELECT * FROM libro WHERE id = $id";
+        $sql = "SELECT *,l.imagen as img_libros, l.id as id_libro  FROM libro l, autor a,editorial e,materia m where l.id=$id
+        AND  l.id_autor = a.id 
+        AND l.id_editorial = e.id 
+        AND l.id_materia= m.id LIMIT 100";
+        
         $res = $this->select($sql);
         return $res;
     }
-    public function actualizarLibros($titulo, $id_autor, $id_editorial, $id_materia, $cantidad, $num_pagina, $anio_edicion, $descripcion, $imgNombre, $id)
+    public function actualizarLibros($titulo, $id_autor, $id_editorial, $id_materia, $cantidad, $num_pagina, $anio_edicion, $descripcion, $imagenUrl, $id)
     {
         $query = "UPDATE libro SET titulo = ?, id_autor=?, id_editorial=?, id_materia=?, cantidad=?, num_pagina=?, anio_edicion=?, descripcion=?, imagen=? WHERE id = ?";
-        $datos = array($titulo, $id_autor, $id_editorial, $id_materia, $cantidad, $num_pagina, $anio_edicion, $descripcion, $imgNombre, $id);
+        $datos = array($titulo, $id_autor, $id_editorial, $id_materia, $cantidad, $num_pagina, $anio_edicion, $descripcion, $imagenUrl, $id);
         $data = $this->save($query, $datos);
         if ($data == 1) {
             $res = "modificado";

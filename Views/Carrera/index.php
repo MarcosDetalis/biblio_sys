@@ -45,7 +45,7 @@
                             <div class="form-group">
                                 <label for="editorial">Nombre</label>
                                 <input type="hidden" id="id" name="id">
-                                <input id="editorial" class="form-control" type="text" name="editorial" required placeholder="Nombre de la Carrera">
+                                <input id="carrera" class="form-control" type="text" name="carrera" required placeholder="Nombre de la Carrera">
                             </div>
                         </div>
 

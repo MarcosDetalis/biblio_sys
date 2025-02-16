@@ -45,6 +45,7 @@
             </div>
             <div class="modal-body">
                 <form id="frmLibro" class="row" onsubmit="registrarLibro(event)">
+              
                     <div class="col-md-8">
                         <div class="form-group">
                             <label for="titulo">Título</label>
@@ -107,6 +108,8 @@
                             <label>Logo</label>
                             <div class="card border-primary">
                                 <div class="card-body">
+                                <div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+
                                     <input type="hidden" id="foto_actual" name="foto_actual">
                                     <label for="imagen" id="icon-image" class="btn btn-primary"><i class="fa fa-cloud-upload"></i></label>
                                     <span id="icon-cerrar"></span>
@@ -116,6 +119,9 @@
                             </div>
                         </div>
                     </div>
+
+                    <input type="hidden" name="imagenUrl" id="urlimggen">
+
                     <div class="col-md-12">
                         <div class="form-group">
                             <button class="btn btn-primary" type="submit" id="btnAccion">Registrar</button>
@@ -127,4 +133,12 @@
         </div>
     </div>
 </div>
+
+
+
+<script>   
+
+
+  
+  </script>
 <?php include "Views/Templates/footer.php"; ?>

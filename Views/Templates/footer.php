@@ -46,10 +46,12 @@
 <script type="text/javascript" src="<?php echo base_url; ?>Assets/js/vfs_fonts.js"></script>
 <script type="text/javascript" src="<?php echo base_url; ?>Assets/js/datatables.min.js"></script>
 <script src="<?php echo base_url; ?>Assets/js/select2.min.js"></script>
-<script src="<?php echo base_url; ?>Assets/js/funciones.js"></script>
+<script src="<?php echo base_url; ?>Assets/js/funciones.js"></script> 
 
 <script src="<?php echo base_url; ?>Assets/js/fn_carrera.js"></script>
 
+
+<script src="<?php echo base_url; ?>Assets/js/fn_libro.js"></script>
 <!-- Google analytics script-->
 <script type="text/javascript">
     if (document.location.hostname == 'pratikborsadiya.in') {

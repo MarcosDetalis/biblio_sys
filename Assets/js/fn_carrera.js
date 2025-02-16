@@ -94,8 +94,8 @@ function frmCarrera() {
 
 function registrarCarrera(e) {
     e.preventDefault();
-    const editorial = document.getElementById("editorial");
-    if (editorial.value == "") {
+    const carrera = document.getElementById("carrera");
+    if (carrera.value == "") {
         alertas('El editorial es requerido', 'warning');
     } else {
         const url = base_url + "Carrera/registrar";
@@ -116,24 +116,24 @@ function registrarCarrera(e) {
     }
 }
 
-function btnEditarEdi(id) {
+function btnEditarCarre(id) {
     document.getElementById("title").textContent = "Actualizar Editorial";
     document.getElementById("btnAccion").textContent = "Modificar";
-    const url = base_url + "Editorial/editar/" + id;
+    const url = base_url + "Carrera/editar/" + id;
     const http = new XMLHttpRequest();
     http.open("GET", url, true);
     http.send();
     http.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             const res = JSON.parse(this.responseText);
-            document.getElementById("id").value = res.id;
-            document.getElementById("editorial").value = res.editorial;
-            $("#nuevoEditorial").modal("show");
+            document.getElementById("id").value = res.id_carrera;
+            document.getElementById("carrera").value = res.carrera;
+            $("#nuevaCarrera").modal("show");
         }
     }
 }
 
-function btnEliminarEdi(id) {
+function btnEliminarCarre(id) {
     Swal.fire({
         title: 'Esta seguro de eliminar?',
         text: "El Editorial no se eliminará de forma permanente, solo cambiará el estado a inactivo!",
@@ -145,7 +145,7 @@ function btnEliminarEdi(id) {
         cancelButtonText: 'No'
     }).then((result) => {
         if (result.isConfirmed) {
-            const url = base_url + "Editorial/eliminar/" + id;
+            const url = base_url + "Carrera/eliminar/" + id;
             const http = new XMLHttpRequest();
             http.open("GET", url, true);
             http.send();
@@ -161,7 +161,7 @@ function btnEliminarEdi(id) {
     })
 }
 
-function btnReingresarEdi(id) {
+function btnReingresarCarre(id) {
     Swal.fire({
         title: 'Esta seguro de reingresar?',
         icon: 'warning',
@@ -172,7 +172,7 @@ function btnReingresarEdi(id) {
         cancelButtonText: 'No'
     }).then((result) => {
         if (result.isConfirmed) {
-            const url = base_url + "Editorial/reingresar/" + id;
+            const url = base_url + "Carrera/reingresar/" + id;
             const http = new XMLHttpRequest();
             http.open("GET", url, true);
             http.send();
