@@ -131,23 +131,17 @@ document.addEventListener("DOMContentLoaded", function() {
     tblAutor = $('#tblAutor').DataTable({
         ajax: {
             url: base_url + "Autor/listar",
-            dataSrc: ''
-        },
-        columns: [{
-                'data': 'id'
-            },
-            {
-                'data': 'imagen'
-            },
-            {
-                'data': 'autor'
-            },
-            {
-                'data': 'estado'
-            },
-            {
-                'data': 'acciones'
+            dataSrc: '',
+            // linea agregada para ver error en consola
+            error: function (xhr, error, thrown) {
+                console.error("Error en la carga de datos: ", xhr.responseText);
             }
+        },
+        columns: [{'data': 'Idautor'}, 
+                  { 'data': 'Autor_nombres'},
+                  { 'data': 'Autor_pais'},
+                  {'data': 'Autor_estado'},
+                  {'data': 'acciones'}
         ],
         language,
         dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>" +
@@ -762,19 +756,13 @@ function btnReingresarMat(id) {
     })
 }
 //Fin Materia
-function frmAutor() {
-    document.getElementById("title").textContent = "Nuevo Autor";
-    document.getElementById("btnAccion").textContent = "Registrar";
-    document.getElementById("frmAutor").reset();
-    document.getElementById("id").value = "";
-    deleteImg();
-    $("#nuevoAutor").modal("show");
-}
-
+// se tiene que modificar
 function registrarAutor(e) {
     e.preventDefault();
-    const autor = document.getElementById("autor");
-    if (autor.value == "") {
+    console.log('registrar')
+    const nombre = document.getElementById("nombre");
+    const pais = document.getElementById("pais");
+    if (nombre.value == "") {
         alertas('El nombre es requerido', 'warning');
     } else {
         const url = base_url + "Autor/registrar";

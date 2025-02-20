@@ -14,8 +14,8 @@
                         <thead class="thead-dark">
                             <tr>
                                 <th>Id</th>
-                                <th>Foto</th>
-                                <th>Nombre</th>
+                                <th>Nombre Autor</th>
+                                <th>Pais</th>
                                 <th>Estado</th>
                                 <th></th>
                             </tr>
@@ -34,7 +34,7 @@
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title text-white" id="title">Registro Autor</h5>
                 <button class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                    <span aria-hidden="true">&times;</span> 
                 </button>
             </div>
             <div class="modal-body">
@@ -42,12 +42,17 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="autor">Nombre</label>
-                                <input type="hidden" id="id" name="id">
-                                <input id="autor" class="form-control" type="text" name="autor" required placeholder="Nombre de Autor" required>
+                                <label for="nombre">Nombre</label>
+                                <input type="hidden" id="Idautor" name="Idautor">
+                                <input id="nombre" class="form-control" type="text" name="Autor_nombres" required placeholder="Nombre de Autor" required>
+                            </div>
+                            <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="pais">pais</label>
+                                <input id="pais" class="form-control" type="text" name="Autor_pais" required placeholder="Nombre de Autor" required>
                             </div>
                         </div>
-                        <div class="col-md-12">
+                        <!-- <div class="col-md-12">
                             <div class="form-group">
                                 <label>Logo</label>
                                 <div class="card border-primary">
@@ -60,7 +65,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         <div class="col-md-12">
                             <div class="form-group">
                                 <button class="btn btn-primary" type="submit" id="btnAccion">Registrar</button>
