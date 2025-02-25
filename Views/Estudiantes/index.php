@@ -13,13 +13,13 @@
                     <table class="table table-light mt-4" id="tblEst">
                         <thead class="thead-dark">
                             <tr>
-                                <th>Id</th>
-                                <th>Código</th>
-                                <th>Cedula</th>
+                            <th>Id</th>
                                 <th>Nombre</th>
+                                <th>Tipo Usuario</th>
                                 <th>Carrera</th>
-                                <th>Dirección</th>
-                                <th>Teléfono</th>
+                                <th>Correo</th>
+                                <th>Usuario nombre</th>
+                                <th>Telefono</th>
                                 <th>Estado</th>
                                 <th></th>
                             </tr>
@@ -44,41 +44,37 @@
             <div class="modal-body">
                 <form id="frmEstudiante">
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="codigo">Código</label>
-                                <input type="hidden" id="id" name="id">
-                                <input id="codigo" class="form-control" type="text" name="codigo" required placeholder="Codigo del estudiante">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="dni">Cedula</label>
-                                <input id="dni" class="form-control" type="text" name="dni" required placeholder="Cedula">
-                            </div>
-                        </div>
+                        
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="nombre">Nombre</label>
-                                <input id="nombre" class="form-control" type="text" name="nombre" required placeholder="Nombre completo">
+                                <input type="hidden" id="Idusuario" name="Idusuario">
+                                <input id="tipousu" class="form-control" type="hidden" name="Tbl_tipo_usuarios_idTipo_usuario" value="2">
+                                <input id="nombre" class="form-control" type="text" name="Usuario_nombre1" required placeholder="Ingrese nombre alumno">
                             </div>
                         </div>
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="carrera">Carrera</label>
-                                <input id="carrera" class="form-control" type="text" name="carrera" required placeholder="Carrera">
+                                <input id="carrera" class="form-control" type="number" name="Tbl_carreras_Idcarrera" required placeholder="Carrera">
                             </div>
                         </div>
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="telefono">Télefono</label>
-                                <input id="telefono" class="form-control" type="text" name="telefono" required placeholder="Teléfono">
+                                <label for="correo">Correo</label>
+                                <input id="correo" class="form-control" type="text" name="Usuario_correo" required placeholder="Correo">
                             </div>
                         </div>
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="direccion">Dirección</label>
-                                <input id="direccion" class="form-control" type="text" name="direccion" required placeholder="Dirección">
+                                <label for="usunombre">Usuario nombre</label>
+                                <input id="usunombre" class="form-control" type="text" name="Usuario_nombre_usuario" required placeholder="Usuario nombre">
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="telefono">Telefono</label>
+                                <input id="telefono" class="form-control" type="text" name="Usuario_ci" required placeholder="Telefono">
                             </div>
                         </div>
                         <div class="col-md-12">

@@ -19,40 +19,42 @@ class Estudiantes extends Controller
     {
         $this->views->getView($this, "index");
     }
+    
     public function listar()
     {
         $data = $this->model->getEstudiantes();
         for ($i = 0; $i < count($data); $i++) {
-            if ($data[$i]['estado'] == 1) {
-                $data[$i]['estado'] = '<span class="badge badge-success">Activo</span>';
+            if ($data[$i]['Usuario_estado'] == 1) {
+                $data[$i]['Usuario_estado'] = '<span class="badge badge-success">Activo</span>';
                 $data[$i]['acciones'] = '<div>
-                <button class="btn btn-primary" type="button" onclick="btnEditarEst(' . $data[$i]['id'] . ');"><i class="fa fa-pencil-square-o"></i></button>
-                <button class="btn btn-danger" type="button" onclick="btnEliminarEst(' . $data[$i]['id'] . ');"><i class="fa fa-trash-o"></i></button>
+                <button class="btn btn-primary" type="button" onclick="btnEditarEst(' . $data[$i]['Idusuario'] . ');"><i class="fa fa-pencil-square-o"></i></button>
+                <button class="btn btn-danger" type="button" onclick="btnEliminarEst(' . $data[$i]['Idusuario'] . ');"><i class="fa fa-trash-o"></i></button>
                 <div/>';
             } else {
-                $data[$i]['estado'] = '<span class="badge badge-danger">Inactivo</span>';
+                $data[$i]['Usuario_estado'] = '<span class="badge badge-danger">Inactivo</span>';
                 $data[$i]['acciones'] = '<div>
-                <button class="btn btn-success" type="button" onclick="btnReingresarEst(' . $data[$i]['id'] . ');"><i class="fa fa-reply-all"></i></button>
+                <button class="btn btn-success" type="button" onclick="btnReingresarEst(' . $data[$i]['Idusuario'] . ');"><i class="fa fa-reply-all"></i></button>
                 <div/>';
             }
         }
         echo json_encode($data, JSON_UNESCAPED_UNICODE);
         die();
     }
+
     public function registrar()
     {
-        $codigo = strClean($_POST['codigo']);
-        $dni = strClean($_POST['dni']);
-        $nombre = strClean($_POST['nombre']);
-        $carrera = strClean($_POST['carrera']);
-        $direccion = strClean($_POST['direccion']);
-        $telefono = strClean($_POST['telefono']);
-        $id = strClean($_POST['id']);
-        if (empty($codigo) || empty($dni) || empty($nombre) || empty($carrera)) {
+        $nombre = strClean($_POST['Usuario_nombre1']);
+        $tipousu=strClean($_POST['Tbl_tipo_usuarios_idTipo_usuario']);
+        $carrera = strClean($_POST['Tbl_carreras_Idcarrera']);
+        $correo = strClean($_POST['Usuario_correo']);
+        $usunombre = strClean($_POST['Usuario_nombre_usuario']);
+        $telefono = strClean($_POST['Usuario_ci']);
+        $id = strClean($_POST['Idusuario']);
+        if (empty($nombre) || empty($tipousu) ||  empty($carrera) || empty($correo) || empty($usunombre) || empty($telefono)) {
             $msg = array('msg' => 'Todo los campos son requeridos', 'icono' => 'warning');
         } else {
             if ($id == "") {
-                    $data = $this->model->insertarEstudiante($codigo, $dni, $nombre, $carrera, $direccion, $telefono);
+                    $data = $this->model->insertarEstudiante($nombre, $tipousu, $carrera, $correo, $usunombre, $telefono);
                     if ($data == "ok") {
                         $msg = array('msg' => 'Estudiante registrado', 'icono' => 'success');
                     } else if ($data == "existe") {
@@ -61,7 +63,7 @@ class Estudiantes extends Controller
                         $msg = array('msg' => 'Error al registrar', 'icono' => 'error');
                     }
             } else {
-                $data = $this->model->actualizarEstudiante($codigo, $dni, $nombre, $carrera, $direccion, $telefono, $id);
+                $data = $this->model->actualizarEstudiante($nombre, $tipousu, $carrera, $correo, $usunombre, $telefono, $id);
                 if ($data == "modificado") {
                     $msg = array('msg' => 'Estudiante modificado', 'icono' => 'success');
                 } else {
@@ -72,6 +74,7 @@ class Estudiantes extends Controller
         echo json_encode($msg, JSON_UNESCAPED_UNICODE);
         die();
     }
+    
     public function editar($id)
     {
         $data = $this->model->editEstudiante($id);

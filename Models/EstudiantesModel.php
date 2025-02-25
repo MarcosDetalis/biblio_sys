@@ -4,19 +4,21 @@ class EstudiantesModel extends Query{
     {
         parent::__construct();
     }
+  
     public function getEstudiantes()
     {
-        $sql = "SELECT * FROM estudiante";
+        $sql = "SELECT Idusuario,Usuario_nombre1,Tbl_tipo_usuarios_idTipo_usuario,Tbl_carreras_Idcarrera,Usuario_correo,Usuario_nombre_usuario,Usuario_ci,Usuario_estado  FROM usuarios WHERE Tbl_tipo_usuarios_idTipo_usuario=2";
         $res = $this->selectAll($sql);
         return $res;
     }
-    public function insertarEstudiante($codigo, $dni, $nombre, $carrera, $direccion, $telefono)
+
+    public function insertarEstudiante($nombre,$tipousu,$carrera, $correo, $usunombre, $telefono)
     {
-        $verificar = "SELECT * FROM estudiante WHERE codigo = '$codigo'";
+        $verificar = "SELECT * FROM usuarios WHERE Usuario_nombre1 = '$nombre'";
         $existe = $this->select($verificar);
         if (empty($existe)) {
-            $query = "INSERT INTO estudiante(codigo,dni,nombre,carrera,direccion,telefono) VALUES (?,?,?,?,?,?)";
-            $datos = array($codigo, $dni, $nombre, $carrera, $direccion, $telefono);
+            $query = "INSERT INTO usuarios (Usuario_nombre1,Tbl_tipo_usuarios_idTipo_usuario,Tbl_carreras_Idcarrera,Usuario_correo,Usuario_nombre_usuario,Usuario_ci) VALUES (?,?,?,?,?,?)";
+            $datos = array($nombre,$tipousu, $carrera, $correo, $usunombre, $telefono);
             $data = $this->save($query, $datos);
             if ($data == 1) {
                 $res = "ok";
@@ -28,16 +30,19 @@ class EstudiantesModel extends Query{
         }
         return $res;
     }
+   
     public function editEstudiante($id)
     {
-        $sql = "SELECT * FROM estudiante WHERE id = $id";
+        $sql = "SELECT  Idusuario,Usuario_nombre1,Tbl_tipo_usuarios_idTipo_usuario,Tbl_carreras_Idcarrera,Usuario_correo,Usuario_nombre_usuario,Usuario_ci   FROM usuarios WHERE Idusuario = $id";
+        //$sql="SELECT * FROM usuarios WHERE Idusuario = $id";       
         $res = $this->select($sql);
         return $res;
     }
-    public function actualizarEstudiante($codigo, $dni, $nombre, $carrera, $direccion, $telefono, $id)
+    
+    public function actualizarEstudiante($nombre,$tipousu,$carrera, $correo, $usunombre, $telefono, $id)
     {
-        $query = "UPDATE estudiante SET codigo = ?, dni = ?, nombre = ?, carrera = ?, direccion = ?, telefono = ?  WHERE id = ?";
-        $datos = array($codigo, $dni, $nombre, $carrera, $direccion, $telefono, $id);
+        $query = "UPDATE usuarios SET Usuario_nombre1 = ?,Tbl_tipo_usuarios_idTipo_usuario= ?, Tbl_carreras_Idcarrera = ?, Usuario_correo = ?, Usuario_nombre_usuario = ?, Usuario_ci = ? WHERE Idusuario = ?";
+        $datos = array($nombre,$tipousu, $carrera, $correo, $usunombre, $telefono, $id);
         $data = $this->save($query, $datos);
         if ($data == 1) {
             $res = "modificado";
@@ -46,19 +51,22 @@ class EstudiantesModel extends Query{
         }
         return $res;
     }
+   
     public function estadoEstudiante($estado, $id)
     {
-        $query = "UPDATE estudiante SET estado = ? WHERE id = ?";
+        $query = "UPDATE usuarios SET Usuario_estado = ? WHERE Idusuario  = ?";
         $datos = array($estado, $id);
         $data = $this->save($query, $datos);
         return $data;
     }
+
     public function buscarEstudiante($valor)
     {
-        $sql = "SELECT id, codigo, nombre AS text FROM estudiante WHERE codigo LIKE '%" . $valor . "%' AND estado = 1 OR nombre LIKE '%" . $valor . "%'  AND estado = 1 LIMIT 10";
+        $sql = "SELECT Idusuario,Usuario_nombre_usuario, Usuario_nombre1  AS text FROM usuarios WHERE Usuario_nombre_usuario  LIKE '%" . $valor . "%' AND Usuario_estado = 1 OR Usuario_nombre1 LIKE '%" . $valor . "%'  AND Usuario_estado = 1 LIMIT 10";
         $data = $this->selectAll($sql);
         return $data;
     }
+
     public function verificarPermisos($id_user, $permiso)
     {
         $tiene = false;

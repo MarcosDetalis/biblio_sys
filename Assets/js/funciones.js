@@ -81,19 +81,21 @@ document.addEventListener("DOMContentLoaded", function() {
         buttons
     });
     //Fin de la tabla usuarios
+   
     tblEst = $('#tblEst').DataTable({
         ajax: {
             url: base_url + "Estudiantes/listar",
             dataSrc: ''
         },
-        columns: [{ 'data': 'id' },
-            { 'data': 'codigo' },
-            { 'data': 'dni' },
-            { 'data': 'nombre' },
-            { 'data': 'carrera' },
-            { 'data': 'direccion' },
-            { 'data': 'telefono' },
-            { 'data': 'estado' },
+        // Idusuario,Usuario_nombre1,Tbl_carreras_Idcarrera,Usuario_correo,Usuario_nombre_usuario,Usuario_ci,Usuario_estado
+        columns: [{ 'data': 'Idusuario' },
+            { 'data': 'Usuario_nombre1' },
+            { 'data': 'Tbl_tipo_usuarios_idTipo_usuario'},
+            { 'data': 'Tbl_carreras_Idcarrera'},
+            { 'data': 'Usuario_correo' },
+            { 'data': 'Usuario_nombre_usuario'},
+            { 'data': 'Usuario_ci' },
+            { 'data': 'Usuario_estado'},
             { 'data': 'acciones' }
         ],
         language,
@@ -545,23 +547,24 @@ function btnReingresarUser(id) {
 }
 //Fin Usuarios
 function frmEstudiante() {
-    document.getElementById("title").textContent = "Nuevo Estuadiante";
+    document.getElementById("title").textContent = "Nuevo Estudiante";
     document.getElementById("btnAccion").textContent = "Registrar";
     document.getElementById("frmEstudiante").reset();
-    document.getElementById("id").value = "";
+    document.getElementById("Idusuario").value = "";
     $("#nuevoEstudiante").modal("show");
 }
 
 function registrarEstudiante(e) {
     e.preventDefault();
-    const codigo = document.getElementById("codigo");
-    const dni = document.getElementById("dni");
     const nombre = document.getElementById("nombre");
+    const tipousu = document.getElementById("tipousu");
     const carrera = document.getElementById("carrera");
-    const telefono = document.getElementById("telefono");
-    const direccion = document.getElementById("direccion");
-    if (codigo.value == "" || dni.value == "" || nombre.value == "" ||
-        telefono.value == "" || direccion.value == "" || carrera.value == "") {
+    const correo = document.getElementById("correo");
+    const usunombre = document.getElementById("usunombre");
+     const telefono = document.getElementById("telefono");
+     
+    if (nombre.value == "" || tipousu.value == "" || carrera.value == "" || correo.value == "" || usunombre.value == "" 
+        || telefono.value == "") {
         alertas('Todo los campos son requeridos', 'warning');
     } else {
         const url = base_url + "Estudiantes/registrar";
@@ -572,32 +575,37 @@ function registrarEstudiante(e) {
         http.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 const res = JSON.parse(this.responseText);
+                console.log(res);
                 $("#nuevoEstudiante").modal("hide");
                 frm.reset();
                 tblEst.ajax.reload();
                 alertas(res.msg, res.icono);
             }
+          
         }
     }
 }
 
 function btnEditarEst(id) {
+    console.log(id)
     document.getElementById("title").textContent = "Actualizar estudiante";
     document.getElementById("btnAccion").textContent = "Modificar";
     const url = base_url + "Estudiantes/editar/" + id;
+    console.log(url);
     const http = new XMLHttpRequest();
     http.open("GET", url, true);
     http.send();
     http.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             const res = JSON.parse(this.responseText);
-            document.getElementById("id").value = res.id;
-            document.getElementById("codigo").value = res.codigo;
-            document.getElementById("dni").value = res.dni;
-            document.getElementById("nombre").value = res.nombre;
-            document.getElementById("carrera").value = res.carrera;
-            document.getElementById("telefono").value = res.telefono;
-            document.getElementById("direccion").value = res.direccion;
+            document.getElementById("Idusuario").value = res.Idusuario;
+           // console.log( document.getElementById("Idusuario").value = res.id);
+            document.getElementById("nombre").value = res.Usuario_nombre1;
+            document.getElementById("tipousu").value = res.Tbl_tipo_usuarios_idTipo_usuario;
+            document.getElementById("carrera").value = res.Tbl_carreras_Idcarrera;
+            document.getElementById("correo").value = res.Usuario_correo;
+            document.getElementById("usunombre").value = res.Usuario_nombre_usuario;
+            document.getElementById("telefono").value = res.Usuario_ci;
             $("#nuevoEstudiante").modal("show");
         }
     }
