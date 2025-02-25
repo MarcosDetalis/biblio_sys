@@ -7,7 +7,8 @@ class PrestamosModel extends Query
     }
     public function getPrestamos()
     {
-        $sql = "SELECT e.id, e.nombre, l.id, l.titulo, p.id, p.id_estudiante, p.id_libro, p.fecha_prestamo, p.fecha_devolucion, p.cantidad, p.observacion, p.estado FROM estudiante e INNER JOIN libro l INNER JOIN prestamo p ON p.id_estudiante = e.id WHERE p.id_libro = l.id";
+        
+        $sql="SELECT rc.Idreserva_cab,u.Idusuario,u.Usuario_nombre1,u.Usuario_correo,u.Usuario_ci, rc.Tbl_Estados_solicitudes_idEstado_solicitud,e.Estado_solicitud_descripcion,rc.Reserva_cab_fecha_solicitud,rc.fecha_devuelto FROM usuarios u INNER JOIN reservas_cab rc INNER JOIN estados_solicitudes e WHERE rc.Tbl_usuarios_idUsuarios = u.Idusuario AND rc.Tbl_Estados_solicitudes_idEstado_solicitud=e.Idestado_solicitud";
         $res = $this->selectAll($sql);
         return $res;
     }
@@ -35,6 +36,22 @@ class PrestamosModel extends Query
         }
         return $res;
     }
+
+    // model nuevo
+    public function estadoPrestamo($estado, $id)
+{
+    $query = "UPDATE reservas_cab SET Tbl_Estados_solicitudes_idEstado_solicitud = ? WHERE Idreserva_cab  = ?";
+    $datos = array($estado, $id);
+    $data = $this->save($query, $datos);
+    return $data;
+}
+public function devueltoPrestamo($estado, $id)
+{
+    $query = "UPDATE reservas_cab SET Tbl_Estados_solicitudes_idEstado_solicitud = ? WHERE Idreserva_cab  = ?";
+    $datos = array($estado, $id);
+    $data = $this->save($query, $datos);
+    return $data;
+}
     public function actualizarPrestamo($estado,$fecha_devolucion,$id)
     {
         $sql = "UPDATE prestamo SET estado = ?, fecha_devolucion= ? WHERE id = ?";

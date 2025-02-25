@@ -11,13 +11,12 @@
             <table class="table table-bordered table-hover table-striped mt-4" id="tblPrestar">
                 <thead class="thead-dark">
                     <tr>
-                        <th>Id</th>
-                        <th>Libro</th>
-                        <th>Estudiante</th>
-                        <th>Fecha Prestamo</th>
-                        <th>Fecha Devolución</th>
-                        <th>Cant</th>
-                        <th>Observación</th>
+                    <th>Id</th>
+                        <th>Nombre</th>
+                        <th>Correo</th>
+                        <th>Telefono</th>
+                        <th>Fecha Inicio</th>
+                        <th>Fecha Devuelto</th>
                         <th>Estado</th>
                         <th></th>
                     </tr>

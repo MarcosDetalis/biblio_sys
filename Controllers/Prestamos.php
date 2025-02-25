@@ -22,19 +22,19 @@ class Prestamos extends Controller
     public function listar()
     {
         $data = $this->model->getPrestamos();
+        // ordenar bien los estados
         for ($i = 0; $i < count($data); $i++) {
-            if ($data[$i]['estado'] == 1) {
-                $data[$i]['estado'] = '<span class="badge badge-secondary">Prestado</span>';
+            if ($data[$i]['Tbl_Estados_solicitudes_idEstado_solicitud'] == 2) {
+                $data[$i]['Tbl_Estados_solicitudes_idEstado_solicitud'] = '<span class="badge badge-warning">Pendiente</span>';
                 $data[$i]['acciones'] = '<div>
-                <button class="btn btn-primary" type="button" onclick="btnEntregar(' . $data[$i]['id'] . ');"><i class="fa fa-hourglass-start"></i></button>
-                <a class="btn btn-danger" target="_blank" href="'.base_url.'Prestamos/ticked/'. $data[$i]['id'].'"><i class="fa fa-file-pdf-o"></i></a>
+                <button class="btn btn-primary" type="button" onclick="btnEntregar(' . $data[$i]['Idreserva_cab'] . ');"><i class="fa fa-hourglass-start"></i></button>
+                <a class="btn btn-danger" target="_blank" href="'.base_url.'Prestamos/ticked/'. $data[$i]['Idreserva_cab'].'"><i class="fa fa-file-pdf-o"></i></a>
                 <div/>';
-            }
-           
-            else {
-                $data[$i]['estado'] = '<span class="badge badge-primary">Devuelto</span>';
+            } else {
+                $data[$i]['Tbl_Estados_solicitudes_idEstado_solicitud'] = '<span class="badge badge-primary">Devuelto</span>';
                 $data[$i]['acciones'] = '<div>
-                <a class="btn btn-danger" target="_blank" href="'.base_url.'Prestamos/ticked/'. $data[$i]['id'].'"><i class="fa fa-file-pdf-o"></i></a>
+                 <button class="btn btn-success" type="button" onclick="btnEstadoDevuelto(' . $data[$i]['Idreserva_cab'] . ');"><i class="fa fa-reply-all"></i></button>
+                <a class="btn btn-danger" target="_blank" href="'.base_url.'Prestamos/ticked/'. $data[$i]['Idreserva_cab'].'"><i class="fa fa-file-pdf-o"></i></a>
                 <div/>';
             }
         }
@@ -83,6 +83,30 @@ class Prestamos extends Controller
         die();
 
     }
+    // FUNCION PARA CAMBAIR ESTADO ACTIVO
+public function activarPrestamo($id)
+{
+    $data = $this->model->estadoPrestamo(1, $id);
+    if ($data == 1) {
+        $msg = array('msg' => 'La reserva esta Activa', 'icono' => 'success');
+    } else {
+        $msg = array('msg' => 'Error al eliminar', 'icono' => 'error');
+    }
+    echo json_encode($msg, JSON_UNESCAPED_UNICODE);
+    die();
+}
+
+public function devolucionPrestamo($id)
+{
+    $data = $this->model->devueltoPrestamo(2, $id);
+    if ($data == 1) {
+        $msg = array('msg' => 'La reserva esta devuelta', 'icono' => 'success');
+    } else {
+        $msg = array('msg' => 'Error al eliminar', 'icono' => 'error');
+    }
+    echo json_encode($msg, JSON_UNESCAPED_UNICODE);
+    die();
+}
     public function pdf()
     {
         $datos = $this->model->selectDatos();
