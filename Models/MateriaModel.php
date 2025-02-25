@@ -7,17 +7,18 @@ class MateriaModel extends Query
     }
     public function getMaterias()
     {
-        $sql = "SELECT * FROM materia";
+        
+        $sql="SELECT m.Idmateria,c.Carrera_descripcion,m.Materia_descripcion,m.materia_estado FROM materias m INNER JOIN carreras c WHERE m.Tbl_carreras_idCarrera=c.Idcarrera";
         $res = $this->selectAll($sql);
         return $res;
     }
-    public function insertarMateria($materia)
+    public function insertarMateria($carrera,$materia)
     {
-        $verificar = "SELECT * FROM materia WHERE materia = '$materia'";
+        $verificar = "SELECT * FROM materias WHERE Materia_descripcion = '$materia'";
         $existe = $this->select($verificar);
         if (empty($existe)) {
-            $query = "INSERT INTO materia(materia) VALUES (?)";
-            $datos = array($materia);
+            $query = "INSERT INTO materias (Tbl_carreras_idCarrera,Materia_descripcion) VALUES (?,?)";
+            $datos = array($carrera,$materia);
             $data = $this->save($query, $datos);
             if ($data == 1) {
                 $res = "ok";
@@ -29,16 +30,18 @@ class MateriaModel extends Query
         }
         return $res;
     }
+
     public function editMateria($id)
     {
-        $sql = "SELECT * FROM materia WHERE id = $id";
+        $sql = "SELECT * FROM materias WHERE Idmateria = $id";
         $res = $this->select($sql);
         return $res;
-    }
-    public function actualizarMateria($materia, $id)
+    } 
+
+    public function actualizarMateria($carrera,$materia, $id)
     {
-        $query = "UPDATE materia SET materia = ? WHERE id = ?";
-        $datos = array($materia, $id);
+        $query = "UPDATE materias SET Tbl_carreras_idCarrera=?, Materia_descripcion = ? WHERE Idmateria = ?";
+        $datos = array($carrera,$materia, $id);
         $data = $this->save($query, $datos);
         if ($data == 1) {
             $res = "modificado";
@@ -47,9 +50,10 @@ class MateriaModel extends Query
         }
         return $res;
     }
+    
     public function estadoMateria($estado, $id)
     {
-        $query = "UPDATE materia SET estado = ? WHERE id = ?";
+        $query = "UPDATE materias SET materia_estado = ? WHERE Idmateria = ?";
         $datos = array($estado, $id);
         $data = $this->save($query, $datos);
         return $data;
@@ -64,9 +68,10 @@ class MateriaModel extends Query
         }
         return $tiene;
     }
+   
     public function buscarMateria($valor)
     {
-        $sql = "SELECT id, materia AS text FROM materia WHERE materia LIKE '%" . $valor . "%'  AND estado = 1 LIMIT 10";
+        $sql = "SELECT Idmateria, Materia_descripcion AS text FROM materias WHERE Materia_descripcion LIKE '%" . $valor . "%'  AND materia_estado = 1 LIMIT 10";
         $data = $this->selectAll($sql);
         return $data;
     }

@@ -14,6 +14,7 @@
                         <thead class="thead-dark">
                             <tr>
                                 <th>Id</th>
+                                <th>Carrera perteneciente</th>
                                 <th>Nombre</th>
                                 <th>Estado</th>
                                 <th></th>
@@ -41,9 +42,13 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="materia">Nombre</label>
-                                <input type="hidden" id="id" name="id">
-                                <input id="materia" class="form-control" type="text" name="materia" required placeholder="Nombre de Materia">
+                                <label for="carrera">Carrera</label>
+                                <input type="hidden" id="id" name="Idmateria">
+                                <input id="carrera" class="form-control" type="text" name="Tbl_carreras_idCarrera" required placeholder="Nombre de Materia">
+                            </div>
+                            <div class="form-group">
+                                <label for="materia">Materia</label>
+                                <input id="materia" class="form-control" type="text" name="Materia_descripcion" required placeholder="Carrera">
                             </div>
                         </div>
 

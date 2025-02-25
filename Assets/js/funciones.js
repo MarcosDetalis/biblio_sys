@@ -103,19 +103,23 @@ document.addEventListener("DOMContentLoaded", function() {
         buttons
     });
     //Fin de la tabla Estudiantes
+  
     tblMateria = $('#tblMateria').DataTable({
         ajax: {
             url: base_url + "Materia/listar",
             dataSrc: ''
         },
         columns: [{
-                'data': 'id'
+                'data': 'Idmateria'
             },
             {
-                'data': 'materia'
+                'data': 'Carrera_descripcion'   
             },
             {
-                'data': 'estado'
+                'data': 'Materia_descripcion'
+            },
+            {
+                'data': 'materia_estado'
             },
             {
                 'data': 'acciones'
@@ -174,7 +178,7 @@ document.addEventListener("DOMContentLoaded", function() {
             "<'row'<'col-sm-12'tr>>" +
             "<'row'<'col-sm-5'i><'col-sm-7'p>>",
         buttons
-    });
+    }); 
     //Fin de la tabla editorial
  
     //fin Libros
@@ -664,9 +668,10 @@ function frmMateria() {
 
 function registrarMateria(e) {
     e.preventDefault();
+    const carrera = document.getElementById("carrera");
     const materia = document.getElementById("materia");
-    if (materia.value == "") {
-        alertas('La materia es requerido', 'warning');
+    if (carrera.value == "" || materia.value == "") {
+        alertas('Todos los campos son requeridos', 'warning');
     } else {
         const url = base_url + "Materia/registrar";
         const frm = document.getElementById("frmMateria");
@@ -695,8 +700,9 @@ function btnEditarMat(id) {
     http.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             const res = JSON.parse(this.responseText);
-            document.getElementById("id").value = res.id;
-            document.getElementById("materia").value = res.materia;
+            document.getElementById("id").value = res.Idmateria;
+            document.getElementById("carrera").value = res.Tbl_carreras_idCarrera;
+            document.getElementById("materia").value = res.Materia_descripcion;
             $("#nuevoMateria").modal("show");
         }
     }
