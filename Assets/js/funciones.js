@@ -150,19 +150,20 @@ document.addEventListener("DOMContentLoaded", function() {
         buttons
     });
     //Fin de la tabla Autor
+
     tblEditorial = $('#tblEditorial').DataTable({
         ajax: {
             url: base_url + "Editorial/listar",
             dataSrc: ''
         },
         columns: [{
-                'data': 'id'
+                'data': 'Ideditorial'
             },
             {
-                'data': 'editorial'
+                'data': 'Editorial_descripcion'
             },
             {
-                'data': 'estado'
+                'data': 'edi_estado'
             },
             {
                 'data': 'acciones'
@@ -862,21 +863,21 @@ function btnReingresarAutor(id) {
 //Fin Autor
 function frmEditorial() {
     document.getElementById("title").textContent = "Nuevo Editorial";
-    document.getElementById("btnAccion").textContent = "Registrar";
+    document.getElementById("btnAccion").textContent = "Registrarlossss";
     document.getElementById("frmEditorial").reset();
     document.getElementById("id").value = "";
     $("#nuevoEditorial").modal("show");
 }
 
+ 
 function registrarEditorial(e) {
     e.preventDefault();
-    const editorial = document.getElementById("editorial");
+    const editorial = document.getElementById("descripcion");
     if (editorial.value == "") {
         alertas('El editorial es requerido', 'warning');
     } else {
         const url = base_url + "Editorial/registrar";
         const frm = document.getElementById("frmEditorial");
-        console.log(frm,",,")
         const http = new XMLHttpRequest();
         http.open("POST", url, true);
         http.send(new FormData(frm));
@@ -901,8 +902,8 @@ function btnEditarEdi(id) {
     http.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             const res = JSON.parse(this.responseText);
-            document.getElementById("id").value = res.id;
-            document.getElementById("editorial").value = res.editorial;
+            document.getElementById("id").value = res.Ideditorial;
+            document.getElementById("descripcion").value = res.Editorial_descripcion;
             $("#nuevoEditorial").modal("show");
         }
     }
@@ -962,6 +963,8 @@ function btnReingresarEdi(id) {
         }
     })
 }
+
+
 //Fin editorial
 
 function frmConfig(e) {

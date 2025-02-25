@@ -7,16 +7,16 @@ class EditorialModel extends Query
     }
     public function getEditorial()
     {
-        $sql = "SELECT * FROM editorial";
+        $sql = "SELECT * FROM editoriales";
         $res = $this->selectAll($sql);
         return $res;
     }
     public function insertarEditorial($editorial)
     {
-        $verificar = "SELECT * FROM editorial WHERE editorial = '$editorial'";
+        $verificar = "SELECT * FROM editoriales WHERE Editorial_descripcion = '$editorial'";
         $existe = $this->select($verificar);
         if (empty($existe)) {
-            $query = "INSERT INTO editorial(editorial) VALUES (?)";
+            $query = "INSERT INTO editoriales(Editorial_descripcion) VALUES (?)";
             $datos = array($editorial);
             $data = $this->save($query, $datos);
             if ($data == 1) {
@@ -31,13 +31,13 @@ class EditorialModel extends Query
     }
     public function editEditorial($id)
     {
-        $sql = "SELECT * FROM editorial WHERE id = $id";
+        $sql = "SELECT * FROM editoriales WHERE Ideditorial = $id";
         $res = $this->select($sql);
         return $res;
     }
     public function actualizarEditorial($editorial, $id)
     {
-        $query = "UPDATE editorial SET editorial = ? WHERE id = ?";
+        $query = "UPDATE editoriales SET Editorial_descripcion = ? WHERE Ideditorial = ?";
         $datos = array($editorial, $id);
         $data = $this->save($query, $datos);
         if ($data == 1) {
@@ -46,14 +46,15 @@ class EditorialModel extends Query
             $res = "error";
         }
         return $res;
-    }
+    } 
+    
     public function estadoEditorial($estado, $id)
     {
-        $query = "UPDATE editorial SET estado = ? WHERE id = ?";
+        $query = "UPDATE editoriales SET edi_estado = ? WHERE Ideditorial = ?";
         $datos = array($estado, $id);
         $data = $this->save($query, $datos);
         return $data;
-    }
+    } 
     public function verificarPermisos($id_user, $permiso)
     {
         $tiene = false;
@@ -66,8 +67,8 @@ class EditorialModel extends Query
     }
     public function buscarEditorial($valor)
     {
-        $sql = "SELECT id, editorial AS text FROM editorial WHERE editorial LIKE '%" . $valor . "%'  AND estado = 1 LIMIT 10";
+        $sql = "SELECT Ideditorial, Editorial_descripcion AS text FROM editoriales WHERE Editorial_descripcion LIKE '%" . $valor . "%'  AND edi_estado = 1 LIMIT 10";
         $data = $this->selectAll($sql);
         return $data;
-    }
+    } 
 }

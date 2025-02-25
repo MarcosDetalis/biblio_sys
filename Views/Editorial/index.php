@@ -13,7 +13,6 @@
                     <table class="table table-bordered table-hover" id="tblEditorial">
                         <thead class="thead-dark">
                             <tr>
-                                <!-- ssss -->
                                 <th>Id</th>
                                 <th>Nombre</th>
                                 <th>Estado</th>
@@ -43,11 +42,10 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="editorial">Nombre</label>
-                                <input type="hidden" id="id" name="id">
-                                <input id="editorial" class="form-control" type="text" name="editorial" required placeholder="Nombre de Editorial">
+                                <input type="hidden" id="id" name="Ideditorial">
+                                <input id="descripcion" class="form-control" type="text" name="Editorial_descripcion" required placeholder="Nombre de Editorial">
                             </div>
                         </div>
-
                         <div class="col-md-12">
                             <div class="form-group">
                                 <button class="btn btn-primary" type="submit" onclick="registrarEditorial(event)" id="btnAccion">Registrar</button>

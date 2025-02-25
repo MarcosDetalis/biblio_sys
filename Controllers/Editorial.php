@@ -23,16 +23,16 @@ class Editorial extends Controller
     {
         $data = $this->model->getEditorial();
         for ($i = 0; $i < count($data); $i++) {
-            if ($data[$i]['estado'] == 1) {
-                $data[$i]['estado'] = '<span class="badge badge-success">Activo</span>';
+            if ($data[$i]['edi_estado'] == 1) {
+                $data[$i]['edi_estado'] = '<span class="badge badge-success">Activo</span>';
                 $data[$i]['acciones'] = '<div>
-                <button class="btn btn-primary" type="button" onclick="btnEditarEdi(' . $data[$i]['id'] . ');"><i class="fa fa-pencil-square-o"></i></button>
-                <button class="btn btn-danger" type="button" onclick="btnEliminarEdi(' . $data[$i]['id'] . ');"><i class="fa fa-trash-o"></i></button>
+                <button class="btn btn-primary" type="button" onclick="btnEditarEdi(' . $data[$i]['Ideditorial'] . ');"><i class="fa fa-pencil-square-o"></i></button>
+                <button class="btn btn-danger" type="button" onclick="btnEliminarEdi(' . $data[$i]['Ideditorial'] . ');"><i class="fa fa-trash-o"></i></button>
                 <div/>';
             } else {
-                $data[$i]['estado'] = '<span class="badge badge-danger">Inactivo</span>';
+                $data[$i]['edi_estado'] = '<span class="badge badge-danger">Inactivo</span>';
                 $data[$i]['acciones'] = '<div>
-                <button class="btn btn-success" type="button" onclick="btnReingresarEdi(' . $data[$i]['id'] . ');"><i class="fa fa-reply-all"></i></button>
+                <button class="btn btn-success" type="button" onclick="btnReingresarEdi(' . $data[$i]['Ideditorial'] . ');"><i class="fa fa-reply-all"></i></button>
                 <div/>';
             }
         }
@@ -41,8 +41,8 @@ class Editorial extends Controller
     }
     public function registrar()
     {
-        $editorial = strClean($_POST['editorial']);
-        $id = strClean($_POST['id']);
+        $editorial = strClean($_POST['Editorial_descripcion']);
+        $id = strClean($_POST['Ideditorial']);
         if (empty($editorial)) {
             $msg = array('msg' => 'El nombre es requerido', 'icono' => 'warning');
         } else {
