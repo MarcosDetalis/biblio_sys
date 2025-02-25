@@ -13,6 +13,7 @@
                     <table class="table table-bordered table-hover" id="tblEditorial">
                         <thead class="thead-dark">
                             <tr>
+                                <!-- ssss -->
                                 <th>Id</th>
                                 <th>Nombre</th>
                                 <th>Estado</th>

@@ -13,6 +13,7 @@
                     <table class="table table-bordered table-hover" id="tblAutor">
                         <thead class="thead-dark">
                             <tr>
+                                <!-- aia -->
                                 <th>Id</th>
                                 <th>Nombre Autor</th>
                                 <th>Pais</th>
