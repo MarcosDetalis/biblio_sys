@@ -79,12 +79,14 @@ public function devueltoPrestamo($estado, $id)
         $res = $this->select($sql);
         return $res;
     }
+    //
     public function getCantLibro($libro)
     {
         $sql = "SELECT * FROM libro WHERE id = $libro";
         $res = $this->select($sql);
         return $res;
     }
+    
     public function selectPrestamoDebe()
     {
         $sql = "SELECT e.id, e.nombre, l.id, l.titulo, p.id, p.id_estudiante, p.id_libro, p.fecha_prestamo, p.fecha_devolucion, p.cantidad, p.observacion, p.estado FROM estudiante e INNER JOIN libro l INNER JOIN prestamo p ON p.id_estudiante = e.id WHERE p.id_libro = l.id AND p.estado = 1 ORDER BY e.nombre ASC";

@@ -189,34 +189,15 @@ document.addEventListener("DOMContentLoaded", function() {
             url: base_url + "Prestamos/listar",
             dataSrc: ''
         },
-        columns: [{
-                'data': 'id'
-            },
-            {
-                'data': 'titulo'
-            },
-            {
-                'data': 'nombre'
-            },
-            {
-                'data': 'fecha_prestamo'
-            },
-
-            {
-                'data': 'fecha_devolucion'
-            },
-            {
-                'data': 'cantidad'
-            },
-            {
-                'data': 'observacion'
-            },
-            {
-                'data': 'estado'
-            },
-            {
-                'data': 'acciones'
-            }
+        columns: [
+            {'data': 'Idreserva_cab'},
+            {'data': 'Usuario_nombre1'},
+            {'data': 'Usuario_correo'},
+            {'data': 'Usuario_ci'},
+            {'data': 'Reserva_cab_fecha_solicitud'},
+            {'data': 'fecha_devuelto'},
+            {'data': 'Tbl_Estados_solicitudes_idEstado_solicitud'},
+            {'data': 'acciones'}
         ],
         language,
         dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>" +
@@ -1009,9 +990,38 @@ function frmPrestar() {
     $("#prestar").modal("show");
 }
 
+// function btnEntregar(id) {
+//     Swal.fire({
+//         title: 'Recibir de libro?',
+//         icon: 'warning',
+//         showCancelButton: true,
+//         confirmButtonColor: '#3085d6',
+//         cancelButtonColor: '#d33',
+//         confirmButtonText: 'Si!',
+//         cancelButtonText: 'No'
+//     }).then((result) => {
+//         if (result.isConfirmed) {
+//             const url = base_url + "Prestamos/entregar/" + id;
+//             const http = new XMLHttpRequest();
+//             http.open("GET", url, true);
+//             http.send();
+//             http.onreadystatechange = function() {
+//                 if (this.readyState == 4 && this.status == 200) {
+//                     const res = JSON.parse(this.responseText);
+//                     tblPrestar.ajax.reload();
+//                     alertas(res.msg, res.icono);
+//                 }
+//             }
+
+//         }
+//     })
+// }
+
+// nueva funcion cmabia estado de reserva a devuelto
 function btnEntregar(id) {
     Swal.fire({
-        title: 'Recibir de libro?',
+        title: 'Desea Marcar como devuelto?',
+        text: "La reserva cambiara a estado devuelto",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
@@ -1020,7 +1030,7 @@ function btnEntregar(id) {
         cancelButtonText: 'No'
     }).then((result) => {
         if (result.isConfirmed) {
-            const url = base_url + "Prestamos/entregar/" + id;
+            const url = base_url + "Prestamos/activarPrestamo/" + id;
             const http = new XMLHttpRequest();
             http.open("GET", url, true);
             http.send();
@@ -1035,6 +1045,37 @@ function btnEntregar(id) {
         }
     })
 }
+
+// funcion nuevo cambia estado a pendiente otravez
+function btnEstadoDevuelto(id) {
+    Swal.fire({
+        title: 'Desea cambiar el estado?',
+        text: "La reserva volvera a estado pendiente",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si!',
+        cancelButtonText: 'No'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const url = base_url + "Prestamos/devolucionPrestamo/" + id;
+            const http = new XMLHttpRequest();
+            http.open("GET", url, true);
+            http.send();
+            http.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    const res = JSON.parse(this.responseText);
+                    tblPrestar.ajax.reload();
+                    alertas(res.msg, res.icono);
+                }
+            }
+
+        }
+    })
+}
+
+
 
 function registroPrestamos(e) {
     e.preventDefault();

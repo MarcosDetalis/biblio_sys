@@ -22,7 +22,7 @@ class Prestamos extends Controller
     public function listar()
     {
         $data = $this->model->getPrestamos();
-        // ordenar bien los estados
+        
         for ($i = 0; $i < count($data); $i++) {
             if ($data[$i]['Tbl_Estados_solicitudes_idEstado_solicitud'] == 2) {
                 $data[$i]['Tbl_Estados_solicitudes_idEstado_solicitud'] = '<span class="badge badge-warning">Pendiente</span>';
