@@ -11,12 +11,12 @@ class Configuracion extends Controller
     }
     public function index()
     {
-		$id_user = $_SESSION['id_usuario'];
-        $perm = $this->model->verificarPermisos($id_user, "Configuracion");
-        if (!$perm && $id_user != 1) {
-            $this->views->getView($this, "permisos");
-            exit;
-        }
+		// $id_user = $_SESSION['id_usuario'];
+        // $perm = $this->model->verificarPermisos($id_user, "Configuracion");
+        // if (!$perm && $id_user != 1) {
+        //     $this->views->getView($this, "permisos");
+        //     exit;
+        // }
         $data = $this->model->selectConfiguracion();
         $this->views->getView($this, "index", $data);
     }
@@ -61,13 +61,14 @@ class Configuracion extends Controller
     }
     public function admin()
     {
-        $data['libros'] = $this->model->selectDatos('libro');
-        $data['materias'] = $this->model->selectDatos('materia');
-        $data['estudiantes'] = $this->model->selectDatos('estudiante');
-        $data['autor'] = $this->model->selectDatos('autor');
-        $data['editorial'] = $this->model->selectDatos('editorial');
-        $data['prestamos'] = $this->model->selectDatos('prestamo');
-        $data['usuarios'] = $this->model->selectDatos('usuarios');
+        $data['libros'] = $this->model->selectDatos('libros','Libro_estado');
+         $data['materias'] = $this->model->selectDatos('materias','materia_estado');
+         //creacion  model que reciba 3 parametro para estudiantes y usuario ya que ambos compartes tabla
+         $data['usuarios'] = $this->model->selectDatosespeciales('usuarios','Usuario_estado','Tbl_tipo_usuarios_idTipo_usuario');
+         $data['autores'] = $this->model->selectDatos('autores','Autor_estado');
+         $data['editoriales'] = $this->model->selectDatos('editoriales','edi_estado');
+         //$data['reservas_cab'] = $this->model->selectDatos('reservas_cab','');
+         $data['usuarios'] = $this->model->selectDatos('usuarios','Usuario_estado');
         $this->views->getView($this, "home", $data);
     }
     public function grafico()
