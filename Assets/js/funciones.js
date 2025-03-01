@@ -391,31 +391,32 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    if (document.getElementById('nombre_estudiante')) {
-        const http = new XMLHttpRequest();
-        const url = base_url + 'Configuracion/verificar';
-        http.open("GET", url);
-        http.send();
-        http.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                const res = JSON.parse(this.responseText);
-                let html = '';
-                console.log(res.length)
-                res.forEach(row => {
-                    html += `
-                    <a class="app-notification__item" href="javascript:;"><span class="app-notification__icon"><span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x text-primary"></i><i class="fa fa-user-o fa-stack-1x fa-inverse"></i></span></span>
-                        <div>
-                            <p class="app-notification__message" id="nombre_estudiante">${row.nombre}</p>
-                            <p class="app-notification__meta" id="fecha_entrega">${row.fecha_devolucion}</p>
-                        </div>
-                    </a>
-                    `;
-                });
-                document.getElementById('nombre_estudiante').innerHTML = html;
-                document.getElementById('not').innerHTML = res.length;
-            }
-        }
-    }
+    // comentando temporalmente
+    // if (document.getElementById('nombre_estudiante')) {
+    //     const http = new XMLHttpRequest();
+    //     const url = base_url + 'Configuracion/verificar';
+    //     http.open("GET", url);
+    //     http.send();
+    //     http.onreadystatechange = function() {
+    //         if (this.readyState == 4 && this.status == 200) {
+    //             const res = JSON.parse(this.responseText);
+    //             let html = '';
+    //             console.log(res.length)
+    //             res.forEach(row => {
+    //                 html += `
+    //                 <a class="app-notification__item" href="javascript:;"><span class="app-notification__icon"><span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x text-primary"></i><i class="fa fa-user-o fa-stack-1x fa-inverse"></i></span></span>
+    //                     <div>
+    //                         <p class="app-notification__message" id="nombre_estudiante">${row.nombre}</p>
+    //                         <p class="app-notification__meta" id="fecha_entrega">${row.fecha_devolucion}</p>
+    //                     </div>
+    //                 </a>
+    //                 `;
+    //             });
+    //             document.getElementById('nombre_estudiante').innerHTML = html;
+    //             document.getElementById('not').innerHTML = res.length;
+    //         }
+    //     }
+    // }
 })
 
 function frmUsuario() {
@@ -989,7 +990,7 @@ function frmPrestar() {
     document.getElementById("frmPrestar").reset();
     $("#prestar").modal("show");
 }
-
+// comentado ya que el insert  se realizara dede cliente
 // function btnEntregar(id) {
 //     Swal.fire({
 //         title: 'Recibir de libro?',

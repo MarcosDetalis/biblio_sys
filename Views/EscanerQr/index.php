@@ -73,7 +73,7 @@
   <input type="hidden" name="id_mov_cabecera" value="${item.Tbl_reservas_cab_idReserva_cab}">
     <tr>
     <td scope="row">
-    <input class="form-check-input" type="checkbox" name="id_detalle[]" value="${item.Idreserva_det}" data-id="${item.Idreserva_det}">
+    <input class="form-check-input" type="checkbox" name="id_detalle[]" value="${item.Idreserva_det}" >
     </td>
     <td>${index + 1}</td>
     <td>${item.Reserva_det_fecha_entraga}</td>
