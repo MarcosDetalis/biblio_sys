@@ -9,12 +9,12 @@ class Usuarios extends Controller{
         if (empty($_SESSION['activo'])) {
             header("location: " . base_url);
         }
-        $id_user = $_SESSION['id_usuario'];
-        $perm = $this->model->verificarPermisos($id_user, "Usuarios");
-        if (!$perm && $id_user != 1) {
-            $this->views->getView($this, "permisos");
-            exit;
-        }
+        // $id_user = $_SESSION['id_usuario'];
+        // $perm = $this->model->verificarPermisos($id_user, "Usuarios");
+        // if (!$perm && $id_user != 1) {
+        //     $this->views->getView($this, "permisos");
+        //     exit;
+        // }
         $this->views->getView($this, "index");
     }
     public function listar()
@@ -24,30 +24,32 @@ class Usuarios extends Controller{
         }
         $data = $this->model->getUsuarios();
         for ($i=0; $i < count($data); $i++) { 
-            if ($data[$i]['estado'] == 1) {
-                if ($data[$i]['id'] != 1) {
-                    $data[$i]['estado'] = '<span class="badge badge-success">Activo</span>';
+            if ($data[$i]['Usuario_estado'] == 1) {
+                if ($data[$i]['Idusuario'] != 1) {
+                    $data[$i]['Usuario_estado'] = '<span class="badge badge-success">Activo</span>';
                     $data[$i]['acciones'] = '<div>
-                    <button class="btn btn-dark" onclick="btnRolesUser(' . $data[$i]['id'] . ')"><i class="fa fa-key"></i></button>
-                    <button class="btn btn-primary" type="button" onclick="btnEditarUser(' . $data[$i]['id'] . ');"><i class="fa fa-pencil-square-o"></i></button>
-                    <button class="btn btn-danger" type="button" onclick="btnEliminarUser(' . $data[$i]['id'] . ');"><i class="fa fa-trash-o"></i></button>
+                    <button class="btn btn-dark" onclick="btnRolesUser(' . $data[$i]['Idusuario'] . ')"><i class="fa fa-key"></i></button>
+                    <button class="btn btn-primary" type="button" onclick="btnEditarUser(' . $data[$i]['Idusuario'] . ');"><i class="fa fa-pencil-square-o"></i></button>
+                    <button class="btn btn-danger" type="button" onclick="btnEliminarUser(' . $data[$i]['Idusuario'] . ');"><i class="fa fa-trash-o"></i></button>
                     <div/>';
                 }else{
-                    $data[$i]['estado'] = '<span class="badge badge-success">Activo</span>';
+                    $data[$i]['Usuario_estado'] = '<span class="badge badge-success">Activo</span>';
                     $data[$i]['acciones'] = '<div class"text-center">
                     <span class="badge-primary p-1 rounded">Super Administrador</span>
                     </div>'; 
                 }
             }else {
-                $data[$i]['estado'] = '<span class="badge badge-danger">Inactivo</span>';
+                $data[$i]['Usuario_estado'] = '<span class="badge badge-danger">Inactivo</span>';
                 $data[$i]['acciones'] = '<div>
-                <button class="btn btn-success" type="button" onclick="btnReingresarUser(' . $data[$i]['id'] . ');"><i class="fa fa-reply-all"></i></button>
+                <button class="btn btn-success" type="button" onclick="btnReingresarUser(' . $data[$i]['Idusuario'] . ');"><i class="fa fa-reply-all"></i></button>
                 <div/>';
             }
         }
         echo json_encode($data, JSON_UNESCAPED_UNICODE);
         die();
     }
+
+    // actualmente no utiliza
     public function validar()
     {
         $usuario = strClean($_POST['usuario']);
@@ -72,11 +74,13 @@ class Usuarios extends Controller{
     }
     public function registrar()
     {
-        $usuario = strClean($_POST['usuario']);
-        $nombre = strClean($_POST['nombre']);
+        $tipousu=strClean($_POST['Tbl_tipo_usuarios_idTipo_usuario']);
+        $carrera=strClean($_POST['Tbl_carreras_Idcarrera']);
+        $usuario = strClean($_POST['Usuario_nombre_usuario']);
+        $nombre = strClean($_POST['Usuario_nombre1']);
         $clave = strClean($_POST['clave']);
         $confirmar = strClean($_POST['confirmar']);
-        $id = strClean($_POST['id']);
+        $id = strClean($_POST['Idusuario']);
         $hash = hash("SHA256", $clave);
         if (empty($usuario) || empty($nombre)) {
             $msg = array('msg' => 'Todo los campos son requeridos', 'icono' => 'warning');
@@ -86,7 +90,7 @@ class Usuarios extends Controller{
                     if ($clave != $confirmar) {
                         $msg = array('msg' => 'La contraseña es requerido', 'icono' => 'warning');
                     } else {
-                        $data = $this->model->registrarUsuario($usuario, $nombre, $hash);
+                        $data = $this->model->registrarUsuario($tipousu,$carrera,$usuario, $nombre, $hash);
                         if ($data == "ok") {
                             $msg = array('msg' => 'Usuario registrado', 'icono' => 'success');
                         } else if ($data == "existe") {
@@ -97,6 +101,7 @@ class Usuarios extends Controller{
                     }
                 }
             }else{
+                // acualtiamente no utiliza
                 $data = $this->model->modificarUsuario($usuario, $nombre, $id);
                 if ($data == "modificado") {
                     $msg = array('msg' => 'Usuario modificado', 'icono' => 'success');
@@ -138,31 +143,31 @@ class Usuarios extends Controller{
     }
     public function permisos($id)
     {
-        $id_user = $_SESSION['id_usuario'];
-        $perm = $this->model->verificarPermisos($id_user, "roles");
-        if (!$perm && $id_user != 1) {
-            echo '<div class="card">
-                    <div class="card-body text-center">
-                        <span class="badge badge-danger">No tienes permisos</span>
-                    </div>
-                </div>';
-            exit;
-        }
+        // $id_user = $_SESSION['id_usuario'];
+        // $perm = $this->model->verificarPermisos($id_user, "roles");
+        // if (!$perm && $id_user != 1) {
+        //     echo '<div class="card">
+        //             <div class="card-body text-center">
+        //                 <span class="badge badge-danger">No tienes permisos</span>
+        //             </div>
+        //         </div>';
+        //     exit;
+        // }
         $data = $this->model->getPermisos();
         $asignados = $this->model->getDetallePermisos($id);
         $datos = array();
         foreach ($asignados as $asignado) {
-            $datos[$asignado['id_permiso']] = true;
+            $datos[$asignado['Tbl_permisos_id_permiso']] = true;
         }
         echo '<div class="row">
-        <input type="hidden" name="id_usuario" value="' . $id . '">';
+        <input type="hidden" name="Tbl_Usuarios_idUsuario" value="' . $id . '">';
         foreach ($data as $row) {
             echo '<div class="d-inline mx-3 text-center">
                     <hr>
-                    <label for="" class="font-weight-bold text-capitalize">' . $row['nombre'] . '</label>
+                    <label for="" class="font-weight-bold text-capitalize">' . $row['Permiso_descripcion'] . '</label>
                         <div class="center">
-                            <input type="checkbox" name="permisos[]" value="' . $row['id'] . '" ';
-            if (isset($datos[$row['id']])) {
+                            <input type="checkbox" name="permisos[]" value="' . $row['Idpermiso'] . '" ';
+            if (isset($datos[$row['Idpermiso']])) {
                 echo "checked";
             }
             echo '>
@@ -177,7 +182,7 @@ class Usuarios extends Controller{
     }
     public function registrarPermisos()
     {
-        $id_user = strClean($_POST['id_usuario']);
+        $id_user = strClean($_POST['Tbl_Usuarios_idUsuario']);
         $permisos = $_POST['permisos'];
         $this->model->deletePermisos($id_user);
         if ($permisos != "") {
@@ -188,6 +193,8 @@ class Usuarios extends Controller{
         echo json_encode("ok");
         die();
     }
+
+    // actualemnte no se utiliza
     public function cambiarPas()
     {
         if ($_POST) {

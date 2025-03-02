@@ -424,14 +424,16 @@ function frmUsuario() {
     document.getElementById("btnAccion").textContent = "Registrar";
     document.getElementById("claves").classList.remove("d-none");
     document.getElementById("frmUsuario").reset();
-    document.getElementById("id").value = "";
+    document.getElementById("Idusuario").value = "";
     $("#nuevo_usuario").modal("show");
 }
 
 function registrarUser(e) {
     e.preventDefault();
-    const usuario = document.getElementById("usuario");
-    const nombre = document.getElementById("nombre");
+    const usuario = document.getElementById("Usuario_nombre_usuario");
+    const nombre = document.getElementById("Usuario_nombre1");
+    const tipousu = document.getElementById("Tbl_tipo_usuarios_idTipo_usuario");
+    const carrera = document.getElementById("Tbl_carreras_Idcarrera");
     const clave = document.getElementById("clave");
     const confirmar = document.getElementById("confirmar");
     if (usuario.value == "" || nombre.value == "") {
@@ -464,9 +466,9 @@ function btnEditarUser(id) {
     http.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             const res = JSON.parse(this.responseText);
-            document.getElementById("id").value = res.id;
-            document.getElementById("usuario").value = res.usuario;
-            document.getElementById("nombre").value = res.nombre;
+            document.getElementById("Idusuario").value = res.Idusuario;
+            document.getElementById("Usuario_nombre_usuario").value = res.Usuario_nombre_usuario;
+            document.getElementById("Usuario_nombre1").value = res.Usuario_nombre1;
             document.getElementById("claves").classList.add("d-none");
             $("#nuevo_usuario").modal("show");
         }

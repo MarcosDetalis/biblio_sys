@@ -41,12 +41,15 @@
                                 <form method="post" id="frmUsuario">
                                     <div class="form-group">
                                         <label for="usuario">Usuario</label>
-                                        <input type="hidden" id="id" name="id">
-                                        <input id="usuario" class="form-control" type="text" name="usuario" placeholder="Usuario">
+                                        <!-- inputs hidden carrera y tipo usuario -->
+                                        <input type="hidden" id="Idusuario" name="Idusuario">
+                                        <input type="hidden" id="Tbl_tipo_usuarios_idTipo_usuario" name="Tbl_tipo_usuarios_idTipo_usuario" value="1">
+                                        <input type="hidden" id="Tbl_carreras_Idcarrera" name="Tbl_carreras_Idcarrera" value="3">
+                                        <input id="Usuario_nombre_usuario" class="form-control" type="text" name="Usuario_nombre_usuario" placeholder="Usuario">
                                     </div>
                                     <div class="form-group">
                                         <label for="nombre">Nombre</label>
-                                        <input id="nombre" class="form-control" type="text" name="nombre" placeholder="Nombre del usuario">
+                                        <input id="Usuario_nombre1" class="form-control" type="text" name="Usuario_nombre1" placeholder="Nombre del usuario">
                                     </div>
                                     <div class="row" id="claves">
                                         <div class="col-md-6">
