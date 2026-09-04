@@ -26,7 +26,7 @@ class ConfiguracionModel extends Query
         return 'modificado';
     }
     public function selectDatos($nombre,$estado){
-        $permitidas=['usuarios'=>'activo','libros'=>'activo','ejemplares'=>'activo','materias'=>'activo','autores'=>'activo','editoriales'=>'activo'];
+        $permitidas=['usuarios'=>'activo','libros'=>'activo','ejemplares'=>'activo','categorias'=>'activo','autores'=>'activo','editoriales'=>'activo'];
         if(!isset($permitidas[$nombre]))return['total'=>0];
         return $this->select("SELECT COUNT(*) total FROM {$nombre} WHERE {$permitidas[$nombre]}=1");
     }

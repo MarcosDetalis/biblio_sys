@@ -55,10 +55,10 @@
     </div>
    
     <div class="col-md-6 col-lg-3">
-        <div class="widget-small info coloured-icon"><i class="icon fa fa-list-alt fa-3x"></i>
-            <a class="info" href="<?php echo base_url; ?>Materia">
-                <h4>Materias</h4>
-                <p><b><?php echo $data['materias']['total'] ?></b></p>
+        <div class="widget-small info coloured-icon"><i class="icon fa fa-tag fa-3x"></i>
+            <a class="info" href="<?php echo base_url; ?>Categoria">
+                <h4>Categorías</h4>
+                <p><b><?php echo $data['categorias']['total'] ?></b></p>
             </a>
         </div>
     </div>

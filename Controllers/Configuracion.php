@@ -29,7 +29,7 @@ class Configuracion extends Controller
             'reservas'=>['total'=>(int)$res['reservas_activas']],
             'prestamos'=>['total'=>(int)$res['prestamos_activos']],
             'multas'=>['total'=>(int)$res['multas_pendientes']],
-            'materias'=>$this->model->selectDatos('materias','activo'),
+            'categorias'=>$this->model->selectDatos('categorias','activo'),
             'autores'=>$this->model->selectDatos('autores','activo'),
             'editoriales'=>$this->model->selectDatos('editoriales','activo'),
             // Antes esta tarjeta mostraba el total de TODOS los usuarios (admin +
