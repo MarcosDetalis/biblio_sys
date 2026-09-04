@@ -57,16 +57,16 @@ class Carrera extends Controller{
             if ($id == "") {
                 $data = $this->model->insertarCarrera($carrera);
                 if ($data == "ok") {
-                    $msg = array('msg' => 'Editorial registrado', 'icono' => 'success');
+                    $msg = array('msg' => 'Carrera registrada', 'icono' => 'success');
                 } else if ($data == "existe") {
-                    $msg = array('msg' => 'El editorial ya existe', 'icono' => 'warning');
+                    $msg = array('msg' => 'La carrera ya existe', 'icono' => 'warning');
                 } else {
                     $msg = array('msg' => 'Error al registrar', 'icono' => 'error');
                 }
             } else {
                 $data = $this->model->actualizarCarrera($carrera, $id);
                 if ($data == "modificado") {
-                    $msg = array('msg' => 'Editorial modificado', 'icono' => 'success');
+                    $msg = array('msg' => 'Carrera modificada', 'icono' => 'success');
                 } else {
                     $msg = array('msg' => 'Error al modificar', 'icono' => 'error');
                 }
@@ -81,7 +81,7 @@ class Carrera extends Controller{
     {
         $data = $this->model->estadoCarrera(0, $id);
         if ($data == 1) {
-            $msg = array('msg' => 'Editorial dado de baja', 'icono' => 'success');
+            $msg = array('msg' => 'Carrera dada de baja', 'icono' => 'success');
         } else {
             $msg = array('msg' => 'Error al eliminar', 'icono' => 'error');
         }
@@ -93,7 +93,7 @@ class Carrera extends Controller{
     {
         $data = $this->model->estadoCarrera(1, $id);
         if ($data == 1) {
-            $msg = array('msg' => 'Editorial restaurado', 'icono' => 'success');
+            $msg = array('msg' => 'Carrera restaurada', 'icono' => 'success');
         } else {
             $msg = array('msg' => 'Error al restaurar', 'icono' => 'error');
         }

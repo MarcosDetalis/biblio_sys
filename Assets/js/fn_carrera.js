@@ -1,6 +1,7 @@
 let   tblCarrera
 document.addEventListener("DOMContentLoaded", function() {
-    document.querySelector("#modalPass").addEventListener("click", function() {
+    const modalPass=document.querySelector("#modalPass");
+    if(modalPass) modalPass.addEventListener("click", function() {
         document.querySelector('#frmCambiarPass').reset();
         $('#cambiarClave').modal('show');
     });
@@ -96,7 +97,7 @@ function registrarCarrera(e) {
     e.preventDefault();
     const carrera = document.getElementById("carrera");
     if (carrera.value == "") {
-        alertas('El editorial es requerido', 'warning');
+        alertas('El nombre de la carrera es requerido', 'warning');
     } else {
         const url = base_url + "Carrera/registrar";
         const frm = document.getElementById("frmCarrera");
@@ -117,7 +118,7 @@ function registrarCarrera(e) {
 }
 
 function btnEditarCarre(id) {
-    document.getElementById("title").textContent = "Actualizar Editorial";
+    document.getElementById("title").textContent = "Actualizar Carrera";
     document.getElementById("btnAccion").textContent = "Modificar";
     const url = base_url + "Carrera/editar/" + id;
     const http = new XMLHttpRequest();
@@ -136,7 +137,7 @@ function btnEditarCarre(id) {
 function btnEliminarCarre(id) {
     Swal.fire({
         title: 'Esta seguro de eliminar?',
-        text: "El Editorial no se eliminará de forma permanente, solo cambiará el estado a inactivo!",
+        text: "La carrera no se eliminará de forma permanente, solo cambiará el estado a inactivo!",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
@@ -187,4 +188,5 @@ function btnReingresarCarre(id) {
         }
     })
 }
-//Fin editorial
+//Fin carreras
+window.frmCarrera=frmCarrera; window.registrarCarrera=registrarCarrera; window.btnEditarCarre=btnEditarCarre; window.btnEliminarCarre=btnEliminarCarre; window.btnReingresarCarre=btnReingresarCarre;

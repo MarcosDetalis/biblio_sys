@@ -29,3 +29,30 @@ function strClean($cadena)
     $string = str_ireplace('==', '', $string);
     return $string;
 }
+
+/**
+ * Recorta un texto UTF-8 a lo sumo $maxChars CARACTERES (no bytes), sin
+ * depender de la extensión mbstring (que puede no estar instalada en
+ * algunos hostings compartidos). Cortar por bytes a secas puede partir un
+ * carácter acentuado a la mitad y corromper el texto siguiente.
+ */
+function recortarUtf8(string $texto, int $maxChars): string
+{
+    $len = strlen($texto);
+    $charCount = 0;
+    $bytePos = 0;
+    while ($bytePos < $len) {
+        $byte = ord($texto[$bytePos]);
+        if ($byte < 0x80) $charLen = 1;
+        elseif (($byte & 0xE0) === 0xC0) $charLen = 2;
+        elseif (($byte & 0xF0) === 0xE0) $charLen = 3;
+        elseif (($byte & 0xF8) === 0xF0) $charLen = 4;
+        else $charLen = 1;
+        if ($charCount >= $maxChars) {
+            return substr($texto, 0, $bytePos) . '...';
+        }
+        $bytePos += $charLen;
+        $charCount++;
+    }
+    return $texto;
+}

@@ -1,219 +1,42 @@
 <?php
+/** Reservas, préstamos y devoluciones. */
 class Prestamos extends Controller
 {
-    public function __construct()
-    {
-        session_start();
-        if (empty($_SESSION['activo'])) {
-            header("location: " . base_url);
+    public function __construct(){if(session_status()===PHP_SESSION_NONE)session_start();if(empty($_SESSION['activo'])){header('Location: '.base_url);exit;}parent::__construct();if(!$this->model->verificarPermisos($_SESSION['id_usuario'],'Prestamos')){$this->views->getView($this,'permisos');exit;}}
+    public function index(){$this->views->getView($this,'index');}
+    public function listar(){
+        $data=$this->model->getPrestamos();
+        foreach($data as &$r){$id=(int)$r['Idreserva_cab'];$estado=(int)$r['Tbl_Estados_solicitudes_idEstado_solicitud'];$r['fecha_devuelto']=$r['fecha_cancelacion']??'';
+            if($estado===1||$estado===2){$r['Tbl_Estados_solicitudes_idEstado_solicitud']='<span class="badge badge-warning">'.$r['Estado_solicitud_descripcion'].'</span>';$r['acciones']='<button class="btn btn-primary mr-1" onclick="btnEntregar('.$id.')"><i class="fa fa-check"></i></button>';}elseif($estado===6){$r['Tbl_Estados_solicitudes_idEstado_solicitud']='<span class="badge badge-success">Finalizada</span>';$r['acciones']='<button class="btn btn-success" onclick="btnEstadoDevuelto('.$id.')"><i class="fa fa-undo"></i></button>';}else{$r['Tbl_Estados_solicitudes_idEstado_solicitud']='<span class="badge badge-secondary">'.$r['Estado_solicitud_descripcion'].'</span>';$r['acciones']='';}}
+        echo json_encode($data,JSON_UNESCAPED_UNICODE);exit;
+    }
+    public function registrar(){
+        $libro=(int)($_POST['libro']??0);$estudiante=(int)($_POST['estudiante']??0);$cantidad=(int)($_POST['cantidad']??0);$fecha=$_POST['fecha_devolucion']??'';$obs=trim($_POST['observacion']??'');
+        if($libro<=0||$estudiante<=0||$cantidad<=0||$fecha===''){echo json_encode(['msg'=>'Todos los campos son requeridos','icono'=>'warning']);exit;}
+        $d=$this->model->getCantLibro($libro);if(!$d||((int)$d['disponibles']<$cantidad)){echo json_encode(['msg'=>'No hay suficientes ejemplares disponibles','icono'=>'warning']);exit;}
+        $id=$this->model->insertarPrestamo($estudiante,$libro,$cantidad,date('Y-m-d'),$fecha,$obs);
+        echo json_encode($id?['msg'=>'Préstamo registrado','icono'=>'success','id'=>$id]:['msg'=>'No fue posible registrar el préstamo','icono'=>'error']);exit;
+    }
+    public function entregar($id){echo json_encode(['msg'=>'Esta acción quedó reemplazada por el Escáner QR (retiro/devolución parcial). Usá esa pantalla.','icono'=>'warning']);exit;}
+    public function activarPrestamo($id){echo json_encode(['msg'=>'Esta acción quedó reemplazada por el Escáner QR (retiro/devolución parcial). Usá esa pantalla.','icono'=>'warning']);exit;}
+    public function devolucionPrestamo($id){echo json_encode(['msg'=>'Esta acción quedó reemplazada por el Escáner QR (retiro/devolución parcial). Usá esa pantalla.','icono'=>'warning']);exit;}
+    public function pdf(){
+        $datos=$this->model->selectDatos();$prestamo=$this->model->selectPrestamoDebe();if(empty($prestamo)){header('Location: '.base_url.'Configuracion/vacio');exit;}
+        require_once 'Libraries/pdf/fpdf.php';$pdf=new FPDF('P','mm','letter');$pdf->AddPage();$pdf->SetMargins(10,10,10);$pdf->SetTitle('Préstamos');$pdf->SetFont('Arial','B',12);$pdf->Cell(195,5,utf8_decode($datos['valor']??'Biblioteca Universitaria'),0,1,'C');$pdf->Ln();$pdf->SetFont('Arial','B',10);
+        // Anchos ajustados para que la fecha (datetime completo, ej. "2026-08-21 01:01")
+        // entre sin desbordarse sobre la columna de Cantidad. N°14 + Usuario50 + Libro70 + Fecha40 + Cant15 = 189mm.
+        $pdf->Cell(14,5,'N°',1,0);$pdf->Cell(50,5,'Usuario',1,0);$pdf->Cell(70,5,'Libro',1,0);$pdf->Cell(40,5,'Fecha',1,0,'C');$pdf->Cell(15,5,'Cant.',1,1,'C');
+        $pdf->SetFont('Arial','',9);$i=1;
+        foreach($prestamo as $r){
+            $fecha=$r['fecha_prestamo']?date('Y-m-d H:i',strtotime($r['fecha_prestamo'])):'';
+            $pdf->Cell(14,5,$i++,1,0);
+            $pdf->Cell(50,5,utf8_decode(strlen($r['nombre']??'')>28?substr($r['nombre'],0,25).'...':($r['nombre']??'')),1,0);
+            $pdf->Cell(70,5,utf8_decode(strlen($r['titulo']??'')>42?substr($r['titulo'],0,39).'...':($r['titulo']??'')),1,0);
+            $pdf->Cell(40,5,$fecha,1,0,'C');
+            $pdf->Cell(15,5,$r['cantidad'],1,1,'C');
         }
-        parent::__construct();
-        $id_user = $_SESSION['id_usuario'];
-        $perm = $this->model->verificarPermisos($id_user, "Prestamos");
-        if (!$perm && $id_user != 1) {
-            $this->views->getView($this, "permisos");
-            exit;
-        }
+        $pdf->Output('prestamos.pdf','I');
     }
-    public function index()
-    {
-        $this->views->getView($this, "index");
-    }
-    public function listar()
-    {
-        $data = $this->model->getPrestamos();
-        
-        for ($i = 0; $i < count($data); $i++) {
-            if ($data[$i]['Tbl_Estados_solicitudes_idEstado_solicitud'] == 2) {
-                $data[$i]['Tbl_Estados_solicitudes_idEstado_solicitud'] = '<span class="badge badge-warning">Pendiente</span>';
-                $data[$i]['acciones'] = '<div>
-                <button class="btn btn-primary" type="button" onclick="btnEntregar(' . $data[$i]['Idreserva_cab'] . ');"><i class="fa fa-hourglass-start"></i></button>
-                <a class="btn btn-danger" target="_blank" href="'.base_url.'Prestamos/ticked/'. $data[$i]['Idreserva_cab'].'"><i class="fa fa-file-pdf-o"></i></a>
-                <div/>';
-            } else {
-                $data[$i]['Tbl_Estados_solicitudes_idEstado_solicitud'] = '<span class="badge badge-primary">Devuelto</span>';
-                $data[$i]['acciones'] = '<div>
-                 <button class="btn btn-success" type="button" onclick="btnEstadoDevuelto(' . $data[$i]['Idreserva_cab'] . ');"><i class="fa fa-reply-all"></i></button>
-                <a class="btn btn-danger" target="_blank" href="'.base_url.'Prestamos/ticked/'. $data[$i]['Idreserva_cab'].'"><i class="fa fa-file-pdf-o"></i></a>
-                <div/>';
-            }
-        }
-        echo json_encode($data, JSON_UNESCAPED_UNICODE);
-        die();
-    }
-    public function registrar()
-    {
-        $libro = strClean($_POST['libro']);
-        $estudiante = strClean($_POST['estudiante']);
-        $cantidad = strClean($_POST['cantidad']);
-        $fecha_prestamo = strClean($_POST['fecha_prestamo']);
-        $fecha_devolucion = strClean($_POST['fecha_devolucion']);
-        $observacion = strClean($_POST['observacion']);
-        if (empty($libro) || empty($estudiante) || empty($cantidad) || empty($fecha_prestamo) || empty($fecha_devolucion)) {
-            $msg = array('msg' => 'Todo los campos son requeridos', 'icono' => 'warning');
-        } else {
-            $verificar_cant = $this->model->getCantLibro($libro);
-            if ($verificar_cant['cantidad'] >= $cantidad) {
-                $data = $this->model->insertarPrestamo($estudiante,$libro, $cantidad, $fecha_prestamo, $fecha_devolucion, $observacion);
-                if ($data !="existe" ) {
-                    $msg = array('msg' => 'Libro Prestado', 'icono' => 'success', 'id' => $data);
-                } else if ($data == "existe") {
-                    $msg = array('msg' => 'El libro ya esta prestado', 'icono' => 'warning');
-                } else {
-                    $msg = array('msg' => 'Error al prestar', 'icono' => 'error');
-                }
-            }else{
-                $msg = array('msg' => 'Stock no disponible', 'icono' => 'warning');
-            }
-        }
-        echo json_encode($msg, JSON_UNESCAPED_UNICODE);
-        die();
-    }
-    public function entregar($id)
-    {
-        $hoy = date("Y-m-d");
-
-        $datos = $this->model->actualizarPrestamo(0,$hoy,$id);
-        if ($datos == "ok") {
-            $msg = array('msg' => 'Libro recibido ', 'icono' => 'success');
-        }else{
-            $msg = array('msg' => 'Error al recibir el libro', 'icono' => 'error');
-        }
-        echo json_encode($msg, JSON_UNESCAPED_UNICODE);
-        die();
-
-    }
-    // FUNCION PARA CAMBAIR ESTADO ACTIVO
-public function activarPrestamo($id)
-{
-    $data = $this->model->estadoPrestamo(1, $id);
-    if ($data == 1) {
-        $msg = array('msg' => 'La reserva esta Activa', 'icono' => 'success');
-    } else {
-        $msg = array('msg' => 'Error al eliminar', 'icono' => 'error');
-    }
-    echo json_encode($msg, JSON_UNESCAPED_UNICODE);
-    die();
+    public function ticked($id_prestamo){$prestamo=$this->model->getPrestamoLibro((int)$id_prestamo);if(empty($prestamo)){header('Location: '.base_url.'Configuracion/vacio');exit;}require_once 'Libraries/pdf/fpdf.php';$pdf=new FPDF('P','mm',[80,200]);$pdf->AddPage();$pdf->SetMargins(5,5,5);$pdf->SetFont('Arial','B',10);$pdf->Cell(70,5,'Biblioteca Universitaria',0,1,'C');$pdf->Ln();$pdf->SetFont('Arial','B',8);$pdf->Cell(60,5,'Libro',1,0);$pdf->Cell(10,5,'Cant.',1,1);$pdf->SetFont('Arial','',8);$pdf->Cell(60,5,utf8_decode($prestamo['titulo']),1,0);$pdf->Cell(10,5,$prestamo['cantidad'],1,1);$pdf->Ln();$pdf->Cell(70,5,'Usuario',0,1,'C');$pdf->Cell(70,5,utf8_decode($prestamo['nombre']),0,1,'C');$pdf->Cell(70,5,'Fecha: '.($prestamo['fecha_prestamo']?date('Y-m-d H:i',strtotime($prestamo['fecha_prestamo'])):''),0,1,'C');$pdf->Output('prestamo.pdf','I');}
 }
-
-public function devolucionPrestamo($id)
-{
-    $data = $this->model->devueltoPrestamo(2, $id);
-    if ($data == 1) {
-        $msg = array('msg' => 'La reserva esta devuelta', 'icono' => 'success');
-    } else {
-        $msg = array('msg' => 'Error al eliminar', 'icono' => 'error');
-    }
-    echo json_encode($msg, JSON_UNESCAPED_UNICODE);
-    die();
-}
-    public function pdf()
-    {
-        $datos = $this->model->selectDatos();
-        $prestamo = $this->model->selectPrestamoDebe();
-        if (empty($prestamo)) {
-            header('Location: ' . base_url . 'Configuracion/vacio');
-        }
-        require_once 'Libraries/pdf/fpdf.php';
-        $pdf = new FPDF('P', 'mm', 'letter');
-        $pdf->AddPage();
-        $pdf->SetMargins(10, 10, 10);
-        $pdf->SetTitle("Prestamos");
-        $pdf->SetFont('Arial', 'B', 12);
-        $pdf->Cell(195, 5, utf8_decode($datos['nombre']), 0, 1, 'C');
-
-          $pdf->Image(base_url . "Assets/img/logo_uni.jpg", 55, 12, 20, 20, 'JPG');
-        $pdf->SetFont('Arial', 'B', 10);
-        $pdf->Cell(20, 5, utf8_decode("Teléfono: "), 0, 0, 'L');
-        $pdf->SetFont('Arial', '', 10);
-        $pdf->Cell(20, 5, $datos['telefono'], 0, 1, 'L');
-        $pdf->SetFont('Arial', 'B', 10);
-        $pdf->Cell(20, 5, utf8_decode("Dirección: "), 0, 0, 'L');
-        $pdf->SetFont('Arial', '', 10);
-        $pdf->Cell(20, 5, utf8_decode($datos['direccion']), 0, 1, 'L');
-        $pdf->SetFont('Arial', 'B', 10);
-        $pdf->Cell(20, 5, "Correo: ", 0, 0, 'L');
-        $pdf->SetFont('Arial', '', 10);
-        $pdf->Cell(20, 5, utf8_decode($datos['correo']), 0, 1, 'L');
-        $pdf->Ln();
-        $pdf->SetFont('Arial', 'B', 10);
-        $pdf->SetFillColor(0, 0, 0);
-        $pdf->SetTextColor(255, 255, 255);
-        $pdf->Cell(196, 5, "Detalle de Prestamosss", 1, 1, 'C', 1);
-        $pdf->SetTextColor(0, 0, 0);
-        $pdf->Cell(14, 5, utf8_decode('N°'), 1, 0, 'L');
-        $pdf->Cell(50, 5, utf8_decode('Estudiantes'), 1, 0, 'L');
-        $pdf->Cell(87, 5, 'Libros', 1, 0, 'L');
-        $pdf->Cell(30, 5, 'Fecha Prestamo', 1, 0, 'L');
-        $pdf->Cell(15, 5, 'Cant.', 1, 1, 'L');
-        $pdf->SetFont('Arial', '', 10);
-        $contador = 1;
-        foreach ($prestamo as $row) {
-            $pdf->Cell(14, 5, $contador, 1, 0, 'L');
-            $pdf->Cell(50, 5, $row['nombre'], 1, 0, 'L');
-            $pdf->Cell(87, 5, utf8_decode($row['titulo']), 1, 0, 'L');
-            $pdf->Cell(30, 5, $row['fecha_prestamo'], 1, 0, 'L');
-            $pdf->Cell(15, 5, $row['cantidad'], 1, 1, 'L');
-            $contador++;
-        }
-        $pdf->Output("prestamos.pdf", "I");
-    }
-    public function ticked($id_prestamo)
-    {
-        $datos = $this->model->selectDatos();
-        $prestamo = $this->model->getPrestamoLibro($id_prestamo);
-        if (empty($prestamo)) {
-            header('Location: '.base_url. 'Configuracion/vacio');
-        }
-        require_once 'Libraries/pdf/fpdf.php';
-        $pdf = new FPDF('P', 'mm', array(80, 200));
-        $pdf->AddPage();
-        $pdf->SetMargins(5, 5, 5);
-        $pdf->SetTitle("Prestamos"); //Titulo de la pestaña
-        $pdf->SetFont('Arial', 'B', 12);
-        $pdf->Cell(40, 5, utf8_decode($datos['nombre']), 0, 1, 'C');
-
-        $pdf->Image(base_url . "Assets/img/logo_uni.jpg", 55, 12, 20, 20, 'JPG');
-        
-        $pdf->SetFont('Arial', 'B', 8);
-        $pdf->Cell(15, 5, utf8_decode("Teléfono: "), 0, 0, 'L');
-        $pdf->SetFont('Arial', '', 8);
-        $pdf->Cell(15, 5, $datos['telefono'], 0, 1, 'L');
-        $pdf->SetFont('Arial', 'B', 8);
-        $pdf->Cell(15, 5, utf8_decode("Dirección: "), 0, 0, 'L');
-        $pdf->SetFont('Arial', '', 8);
-        $pdf->Cell(15, 5, utf8_decode($datos['direccion']), 0, 1, 'L');
-        $pdf->SetFont('Arial', 'B', 8);
-        $pdf->Cell(15, 5, "Correo: ", 0, 0, 'L');
-        $pdf->SetFont('Arial', '', 8);
-        $pdf->Cell(15, 5, utf8_decode($datos['correo']), 0, 1, 'L');
-        $pdf->Ln();
-        $pdf->SetFont('Arial', 'B', 8);
-        $pdf->SetFillColor(0, 0, 0);
-        $pdf->SetTextColor(255, 255, 255);
-        $pdf->Cell(72, 5, "Detalle de Prestamos", 1, 1, 'C', 1);
-        $pdf->SetTextColor(0, 0, 0);
-        $pdf->Cell(60, 5, 'Libros', 1, 0, 'L');
-        $pdf->Cell(12, 5, 'Cant.', 1, 1, 'L');
-        $pdf->SetFont('Arial', '', 8);
-        $pdf->Cell(60, 5, utf8_decode($prestamo['titulo']), 1, 0, 'L');
-        $pdf->Cell(12, 5, $prestamo['cantidad'], 1, 1, 'L');
-        $pdf->Ln();
-        $pdf->SetFillColor(0, 0, 0);
-        $pdf->SetTextColor(255, 255, 255);
-        $pdf->Cell(72, 5, "Estudiante", 1, 1, 'C', 1);
-        $pdf->SetTextColor(0, 0, 0);
-        $pdf->Cell(35, 5, 'Nombre.', 1, 0, 'L');
-        $pdf->Cell(37, 5, 'Carrera.', 1, 1, 'L');
-        $pdf->SetFont('Arial', '', 8);
-        $pdf->Cell(35, 5, $prestamo['nombre'], 1, 0, 'L');
-        $pdf->Cell(37, 5, $prestamo['carrera'], 1, 1, 'L');
-        $pdf->Ln();
-        $pdf->SetFont('Arial', 'B', 10);
-        $pdf->Cell(72, 5, 'Fecha Prestamo', 0, 1, 'C');
-        $pdf->SetFont('Arial', '', 10);
-        $pdf->Cell(72, 5, $prestamo['fecha_prestamo'], 0, 1, 'C');
-        $pdf->Output("prestamos.pdf", "I");
-    }
-    
-}
+?>

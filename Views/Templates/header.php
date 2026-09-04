@@ -36,13 +36,11 @@
             <!--Notification Menu-->
             <li class="dropdown"><a class="app-nav__item" href="#" data-toggle="dropdown" aria-label="Show notifications"><i class="fa fa-bell-o fa-lg"><span class="badgenot bg-primar rounded-pill" id="not">0</span></i></a>
                 <ul class="app-notification dropdown-menu dropdown-menu-right">
-                    <li class="app-notification__title">Libros no entregados.</li>
-                    <div class="app-notification__content">
-                        <li id="nombre_estudiante">
-
-                        </li>
+                    <li class="app-notification__title">Notificaciones</li>
+                    <div class="app-notification__content" id="listaNotificaciones">
+                        <li class="app-notification__item text-muted small px-3 py-2">Sin novedades.</li>
                     </div>
-                    <li class="app-notification__footer"><a href="<?php echo base_url; ?>Configuracion/libros" target="_blank">Generar Reporte.</a></li>
+                    <li class="app-notification__footer" id="footerNotificaciones"></li>
                 </ul>
             </li>
             <!-- User Menu-->
@@ -64,13 +62,24 @@
             </div>
         </div>
         <ul class="app-menu">
-            <li><a class="app-menu__item" href="<?php echo base_url; ?>Prestamos"><i class="app-menu__icon fa fa-hourglass-start"></i><span class="app-menu__label">Solicitud</span></a></li>
+            <!-- "Solicitud" ocultada: era redundante con "Reservas" (mismo listado de
+                 reservas) salvo por el botón "+" que crea un préstamo directo sin QR.
+                 El controlador (Controllers/Prestamos.php) sigue intacto por si se
+                 necesita reactivar; solo se quitó el acceso del menú. -->
+            <li><a class="app-menu__item" href="<?php echo base_url; ?>Reservas"><i class="app-menu__icon fa fa-calendar"></i><span class="app-menu__label">Reservas</span></a></li>
             <li><a class="app-menu__item" href="<?php echo base_url; ?>Estudiantes"><i class="app-menu__icon fa fa-graduation-cap"></i><span class="app-menu__label">Estudiantes</span></a></li>
-            <li><a class="app-menu__item" href="<?php echo base_url; ?>Materia"><i class="app-menu__icon fa fa-list-alt"></i><span class="app-menu__label">Materias</span></a></li>
+            <!-- "Materias" ocultada del menú: se usaba como clasificación de
+                 libros en paralelo con "Categorías", sin conectar ninguna de
+                 las dos con nada. El catálogo del alumno filtra por
+                 categoría, no por materia, así que ahora "Categorías"
+                 reemplaza a "Materias" en el formulario de libros. El
+                 controlador (Controllers/Materia.php) sigue intacto por si
+                 se necesita en el futuro; solo se quitó el acceso del menú. -->
             <li class="treeview"><a class="app-menu__item" href="#" data-toggle="treeview"><i class="app-menu__icon fa fa-list"></i><span class="app-menu__label">Libros</span><i class="treeview-indicator fa fa-angle-right"></i></a>
                 <ul class="treeview-menu">
                     <li><a class="treeview-item" href="<?php echo base_url; ?>Autor"><i class="icon fa fa-address-book-o"></i> Autor</a></li>
                     <li><a class="treeview-item" href="<?php echo base_url; ?>Editorial"><i class="icon fa fa-tags"></i> Editorial</a></li>
+                    <li><a class="treeview-item" href="<?php echo base_url; ?>Categoria"><i class="icon fa fa-list-alt"></i> Categorías</a></li>
                     <li><a class="treeview-item" href="<?php echo base_url; ?>Libros"><i class="icon fa fa-book"></i> Libros</a></li>
                 </ul>
             </li>
@@ -87,6 +96,7 @@
             </li>
             <li class="treeview"><a class="app-menu__item" href="#" data-toggle="treeview"><i class="app-menu__icon fa fa-file-text"></i><span class="app-menu__label">Reportes</span><i class="treeview-indicator fa fa-angle-right"></i></a>
                 <ul class="treeview-menu">
+                    <li><a class="treeview-item" href="<?php echo base_url; ?>EscanerQr/reportes"><i class="icon fa fa-bar-chart"></i> Reservas (pendientes/retiradas/devueltas)</a></li>
                     <li><a class="treeview-item" target="_blank" href="<?php echo base_url; ?>Prestamos/pdf"><i class="icon fa fa-file-pdf-o"></i> Libros Prestados</a></li>
                 </ul>
             </li>
@@ -99,10 +109,6 @@
             <span class="app-menu__label">Escaner Qr</span></a></li>
 
           
-            <li><a class="app-menu__item" href="<?php echo base_url; ?>Cketnomas">
-            <i class="app-menu__icon fa fa-file-text"></i>
-            
-            <span class="app-menu__label">cketnomas</span></a></li>
 
 
            

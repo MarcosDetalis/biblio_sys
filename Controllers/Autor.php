@@ -1,113 +1,13 @@
 <?php
 class Autor extends Controller
 {
-    public function __construct()
-    {
-        session_start();
-        if (empty($_SESSION['activo'])) {
-            header("location: " . base_url);
-        }
-        parent::__construct();
-
-        // actualmente comento porque es que pide permisos
-        // $id_user = $_SESSION['id_usuario'];
-        // $perm = $this->model->verificarPermisos($id_user, "Autor");
-        // if (!$perm && $id_user != 1) {
-        //     $this->views->getView($this, "permisos");
-        //     exit;
-        // }
-    }
-    public function index()
-    {
-        $this->views->getView($this, "index");
-    }
-    public function listar()
-    {
-        $data = $this->model->getAutor();
-        for ($i = 0; $i < count($data); $i++) {
-            // $data[$i]['imagen'] = '<img class="img-thumbnail" src="' . base_url . "Assets/img/autor/" . $data[$i]['imagen'] . '" width="80">';
-            if ($data[$i]['Autor_estado'] == 1) {
-                $data[$i]['Autor_estado'] = '<span class="badge badge-success">Activo</span>';
-                $data[$i]['acciones'] = '<div>
-                <button class="btn btn-primary" type="button" onclick="btnEditarAutor(' . $data[$i]['Idautor'] . ');"><i class="fa fa-pencil-square-o"></i></button>
-                <button class="btn btn-danger" type="button" onclick="btnEliminarAutor(' . $data[$i]['Idautor'] . ');"><i class="fa fa-trash-o"></i></button>
-                <div/>';
-            } else {
-                $data[$i]['Autor_estado'] = '<span class="badge badge-danger">Inactivo</span>';
-                $data[$i]['acciones'] = '<div>
-                <button class="btn btn-success" type="button" onclick="btnReingresarAutor(' . $data[$i]['Idautor'] . ');"><i class="fa fa-reply-all"></i></button>
-                <div/>';
-            }
-        }
-        echo json_encode($data, JSON_UNESCAPED_UNICODE);
-        die();
-    }
-
-    public function registrar()
-    {
-        $nombre = strClean($_POST['Autor_nombres']);
-        $pais=strClean($_POST['Autor_pais']);
-        $id = strClean($_POST['Idautor']);
-        if (empty($nombre) || empty($pais)) {
-            $msg = array('msg' => 'Todo los campos son requeridos', 'icono' => 'warning');
-        } else {
-            if ($id == "") {
-                    $data = $this->model->insertarAutor($nombre, $pais);
-                    if ($data == "ok") {
-                        $msg = array('msg' => 'Estudiante registrado', 'icono' => 'success');
-                    } else if ($data == "existe") {
-                        $msg = array('msg' => 'El estudiante ya existe', 'icono' => 'warning');
-                    } else {
-                        $msg = array('msg' => 'Error al registrar', 'icono' => 'error');
-                    }
-            } else {
-                $data = $this->model->actualizarAutor($nombre, $pais, $id);
-                if ($data == "modificado") {
-                    $msg = array('msg' => 'Nombre modificado', 'icono' => 'success');
-                } else {
-                    $msg = array('msg' => 'Error al modificar', 'icono' => 'error');
-                }
-            }
-        }
-        echo json_encode($msg, JSON_UNESCAPED_UNICODE);
-        die();
-    }
-
-    public function editar($id)
-    {
-        $data = $this->model->editAutor($id);
-        echo json_encode($data, JSON_UNESCAPED_UNICODE);
-        die();
-    }
-    public function eliminar($id)
-    {
-        $data = $this->model->estadoAutor(0, $id);
-        if ($data == 1) {
-            $msg = array('msg' => 'Autor dado de baja', 'icono' => 'success');
-        } else {
-            $msg = array('msg' => 'Error al eliminar', 'icono' => 'error');
-        }
-        echo json_encode($msg, JSON_UNESCAPED_UNICODE);
-        die();
-    }
-    public function reingresar($id)
-    {
-        $data = $this->model->estadoAutor(1, $id);
-        if ($data == 1) {
-            $msg = array('msg' => 'Autor restaurado', 'icono' => 'success');
-        } else {
-            $msg = array('msg' => 'Error al restaurar', 'icono' => 'error');
-        }
-        echo json_encode($msg, JSON_UNESCAPED_UNICODE);
-        die();
-    }
-    public function buscarAutor()
-    {
-        if (isset($_GET['q'])) {
-            $valor = $_GET['q'];
-            $data = $this->model->buscarAutor($valor);
-            echo json_encode($data, JSON_UNESCAPED_UNICODE);
-            die();
-        }
-    }
+    public function __construct(){if(session_status()===PHP_SESSION_NONE)session_start();if(empty($_SESSION['activo'])){header('Location: '.base_url);exit;}parent::__construct();if(!$this->model->verificarPermisos($_SESSION['id_usuario'],'Autor')){$this->views->getView($this,'permisos');exit;}}
+    public function index(){$this->views->getView($this,'index');}
+    public function listar(){try{$data=$this->model->getAutor();foreach($data as &$r){$id=(int)$r['Idautor'];$activo=(int)$r['Autor_estado']===1;$r['Autor_estado']=$activo?'<span class="badge badge-success">Activo</span>':'<span class="badge badge-danger">Inactivo</span>';$r['acciones']=$activo?'<button class="btn btn-primary" onclick="btnEditarAutor('.$id.')"><i class="fa fa-pencil-square-o"></i></button> <button class="btn btn-danger" onclick="btnEliminarAutor('.$id.')"><i class="fa fa-trash-o"></i></button>':'<button class="btn btn-success" onclick="btnReingresarAutor('.$id.')"><i class="fa fa-reply-all"></i></button>';}$data=array_values($data);echo json_encode($data,JSON_UNESCAPED_UNICODE);exit;}catch(Throwable $e){error_log('Autor/listar '.$e->getMessage());http_response_code(500);echo json_encode(['error'=>'No fue posible cargar los autores'],JSON_UNESCAPED_UNICODE);exit;}}
+    public function registrar(){$nombres=trim($_POST['Autor_nombres']??'');$apellidos=trim($_POST['Autor_apellidos']??'');$pais=trim($_POST['Autor_pais']??'');$id=(int)($_POST['Idautor']??0);if($nombres===''||$apellidos===''){echo json_encode(['msg'=>'Nombres y apellidos son requeridos','icono'=>'warning']);exit;}$d=$id===0?$this->model->insertarAutor($nombres,$apellidos,$pais):$this->model->actualizarAutor($nombres,$apellidos,$pais,$id);$m=['ok'=>['Autor registrado','success'],'existe'=>['El autor ya existe','warning'],'modificado'=>['Autor modificado','success']];$r=$m[$d]??['Error al guardar el autor','error'];echo json_encode(['msg'=>$r[0],'icono'=>$r[1]],JSON_UNESCAPED_UNICODE);exit;}
+    public function editar($id){echo json_encode($this->model->editAutor((int)$id),JSON_UNESCAPED_UNICODE);exit;}
+    public function eliminar($id){$ok=$this->model->estadoAutor(0,(int)$id);echo json_encode(['msg'=>$ok?'Autor dado de baja':'Error al eliminar','icono'=>$ok?'success':'error']);exit;}
+    public function reingresar($id){$ok=$this->model->estadoAutor(1,(int)$id);echo json_encode(['msg'=>$ok?'Autor restaurado':'Error al restaurar','icono'=>$ok?'success':'error']);exit;}
+    public function buscarAutor(){echo json_encode($this->model->buscarAutor(trim($_GET['q']??'')),JSON_UNESCAPED_UNICODE);exit;}
 }
+?>

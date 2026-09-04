@@ -1,448 +1,200 @@
+/**
+ * JavaScript del módulo de libros.
+ * La portada se sube a Cloudinary (cloud "dylm4lqwh", preset unsigned
+ * "mfa6ot9w") apenas se elige el archivo, y se guarda la URL resultante
+ * (no el archivo) en la base de datos. Esto es necesario porque el
+ * hosting de producción (Clever Cloud) tiene disco efímero: cualquier
+ * imagen guardada localmente en el servidor se perdía en cada redeploy.
+ */
 let tblLibros;
+let subiendoPortada=false;
 
-document.addEventListener("DOMContentLoaded", function() {
-    document.querySelector("#modalPass").addEventListener("click", function() {
-        document.querySelector('#frmCambiarPass').reset();
-        $('#cambiarClave').modal('show');
+$(function () {
+    const language = {
+        emptyTable: "No hay información", info: "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+        infoEmpty: "Mostrando 0 a 0 de 0 Entradas", infoFiltered: "(Filtrado de _MAX_ total entradas)",
+        lengthMenu: "Mostrar _MENU_ Entradas", loadingRecords: "Cargando...", processing: "Procesando...",
+        search: "Buscar:", zeroRecords: "Sin resultados encontrados",
+        paginate: { first: "Primero", last: "Último", next: "Siguiente", previous: "Anterior" }
+    };
+    if (!document.getElementById('tblLibros')) return;
+    tblLibros = $('#tblLibros').DataTable({
+        ajax: { url: base_url + 'Libros/listar', dataSrc: '' },
+        columns: [
+            {data:'id'}, {data:'titulo'}, {data:'cantidad'}, {data:'autor'}, {data:'editorial'},
+            {data:'categoria'}, {data:'foto'}, {data:'descripcion'}, {data:'estado'}, {data:'acciones'}
+        ], language, responsive:true, bDestroy:true
     });
-const language = {
-    "decimal": "",
-    "emptyTable": "No hay información",
-    "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
-    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
-    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
-    "infoPostFix": "",
-    "thousands": ",",
-    "lengthMenu": "Mostrar _MENU_ Entradas",
-    "loadingRecords": "Cargando...",
-    "processing": "Procesando...",
-    "search": "Buscar:",
-    "zeroRecords": "Sin resultados encontrados",
-    "The results could not be loaded.": "te resultasos es ",
-    "paginate": {
-        "first": "Primero",
-        "last": "Ultimo",
-        "next": "Siguiente",
-        "previous": "Anterior"
-    }
-
-}
-const buttons = [{
-    //Botón para Excel
-    extend: 'excel',
-    footer: true,
-    title: 'Archivo',
-    filename: 'Export_File',
-
-    //Aquí es donde generas el botón personalizado
-    text: '<button class="btn btn-success"><i class="fa fa-file-excel-o"></i></button>'
-},
-//Botón para PDF
-{
-    extend: 'pdf',
-    footer: true,
-    title: 'Archivo PDF',
-    filename: 'reporte',
-    text: '<button class="btn btn-danger"><i class="fa fa-file-pdf-o"></i></button>'
-},
-//Botón para print
-{
-    extend: 'print',
-    footer: true,
-    title: 'Reportes',
-    filename: 'Export_File_print',
-    text: '<button class="btn btn-info"><i class="fa fa-print"></i></button>'
-}
-]
-
-
-tblLibros = $('#tblLibros').DataTable({
-    ajax: {
-        url: base_url + "Libros/listar",
-        dataSrc: ''
-    },
-    columns: [{
-            'data': 'id'
-        },
-        {
-            'data': 'titulo'
-        },
-        {
-            'data': 'cantidad'
-        },
-        {
-            'data': 'autor'
-        },
-        {
-            'data': 'editorial'
-        },
-        {
-            'data': 'materia'
-        },
-        {
-            'data': 'foto'
-        },
-        {
-            'data': 'descripcion'
-        },
-        {
-            'data': 'estado'
-        },
-        {
-            'data': 'acciones'
-        }
-    ],
-    language,
-    dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>" +
-        "<'row'<'col-sm-12'tr>>" +
-        "<'row'<'col-sm-5'i><'col-sm-7'p>>",
-    buttons
 });
-})
 
 function frmLibros() {
-    document.getElementById("title").textContent = "Nuevo Libro";
-    document.getElementById("btnAccion").textContent = "Registrar";
-    document.getElementById("frmLibro").reset();
-    document.getElementById("id").value = "";
-    $("#nuevoLibro").modal("show");
-    document.querySelector('.lds-spinner').hidden = true;
-    deleteImg();
-
-    document.getElementById("autor").innerText = null;
-    var autor = document.createElement('option');
-    autor.value = res.id_autor;
-    autor.innerHTML = res.autor;
-    document.getElementById("autor").appendChild(autor);
-
-
-
+    const f=document.getElementById('frmLibro'); if(!f)return;
+    f.reset(); document.getElementById('id').value=''; $('#autor,#editorial,#categoria').each(function(){ $(this).val(null).empty().trigger('change'); });
+    document.getElementById('title').textContent='Nuevo Libro';
+    document.getElementById('btnAccion').textContent='Registrar';
+    document.getElementById('img-preview').src='';
+    document.getElementById('foto_actual').value='';
+    document.getElementById('urlimggen').value='';
+    document.getElementById('progresoPortada').textContent='';
+    subiendoPortada=false;
+    document.getElementById('btnAccion').disabled=false;
+    cargarRestricciones(1);
+    $('#nuevoLibro').modal('show');
 }
-var imgg;
 
-console.log("asda")
-const log = document.getElementById("imagen");
-log.addEventListener("change", (event) => {
-const file = event.target.files[0];
-const imgname = event.target.files[0].name;
-const reader = new FileReader();
-reader.readAsDataURL(file);
-reader.onloadend = () => {
-  const img = new Image();
-  img.src = reader.result;
-  img.onload = () => {
-    const canvas = document.createElement("canvas");
-    const maxSize = Math.max(img.width, img.height);
-    canvas.width = maxSize;
-    canvas.height = maxSize;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(
-      img,
-      (maxSize - img.width) / 2,
-      (maxSize - img.height) / 2
-    );
-    canvas.toBlob(
-      (blob) => {
-        const file = new File([blob], imgname, {
-          type: "image/png",
-          lastModified: Date.now(),
-        });
-        console.log(file);
-        imgg =file
-      },
-      "image/jpeg",
-      0.8
-    );
-  };
-};
+// Catálogo de restricciones (Sin restricción / Restringido).
+// Por defecto se deja preseleccionada "Sin restricción".
+function cargarRestricciones(seleccionar){
+    const http=new XMLHttpRequest();
+    http.open('GET',base_url+'Libros/restricciones',true);
+    http.send();
+    http.onreadystatechange=function(){
+        if(this.readyState!==4)return;
+        try{
+            const data=JSON.parse(this.responseText);
+            const select=document.getElementById('restriccion');
+            select.innerHTML='';
+            data.forEach(function(op){
+                const opt=document.createElement('option');
+                opt.value=op.id; opt.textContent=op.text;
+                select.appendChild(opt);
+            });
+            select.value=seleccionar||1;
+        }catch(e){console.error(this.responseText);}
+    };
+}
 
-});
+// Sube la portada elegida a Cloudinary (unsigned upload) y guarda la URL
+// resultante en el campo oculto #urlimggen. Mientras sube, bloquea el botón
+// de Guardar para no registrar el libro con una portada a medio subir.
+function subirPortadaCloudinary(file){
+    if(!file)return;
+    if(!/^image\/(jpe?g|png)$/i.test(file.type)){
+        return; // preview() ya avisó del formato inválido; no se intenta subir.
+    }
+    const CLOUD_NAME='dylm4lqwh';
+    const UPLOAD_PRESET='mfa6ot9w';
+    const progreso=document.getElementById('progresoPortada');
+    const btn=document.getElementById('btnAccion');
 
+    subiendoPortada=true;
+    btn.disabled=true;
+    document.getElementById('urlimggen').value='';
+    progreso.textContent='Subiendo portada... 0%';
 
-function registrarLibro(e) {
-    
+    const formData=new FormData();
+    formData.append('file',file);
+    formData.append('upload_preset',UPLOAD_PRESET);
+
+    const xhr=new XMLHttpRequest();
+    xhr.open('POST','https://api.cloudinary.com/v1_1/'+CLOUD_NAME+'/image/upload');
+    xhr.upload.addEventListener('progress',function(event){
+        if(event.lengthComputable){
+            const pct=Math.round((event.loaded*100.0)/event.total);
+            progreso.textContent='Subiendo portada... '+pct+'%';
+        }
+    });
+    xhr.onreadystatechange=function(){
+        if(this.readyState!==4)return;
+        subiendoPortada=false;
+        btn.disabled=false;
+        if(this.status===200){
+            try{
+                const url=JSON.parse(this.responseText).secure_url;
+                document.getElementById('urlimggen').value=url;
+                progreso.innerHTML='<span class="text-success"><i class="fa fa-check"></i> Portada subida</span>';
+            }catch(e){
+                progreso.innerHTML='<span class="text-danger">No se pudo procesar la respuesta de Cloudinary</span>';
+            }
+        }else{
+            progreso.innerHTML='<span class="text-danger">No se pudo subir la portada (se guardará el libro sin imagen, o reintentá)</span>';
+        }
+    };
+    xhr.onerror=function(){
+        subiendoPortada=false;
+        btn.disabled=false;
+        progreso.innerHTML='<span class="text-danger">Error de red al subir la portada</span>';
+    };
+    xhr.send(formData);
+}
+
+function registrarLibro(e){
     e.preventDefault();
-
-     const titulo = document.getElementById("titulo");
-     const autor = document.getElementById("autor");
-     const editorial = document.getElementById("editorial");
-     const materia = document.getElementById("materia");
-     const cantidad = document.getElementById("cantidad");
-     const num_pagina = document.getElementById("num_pagina");
-     if (titulo.value == '' || autor.value == '' || editorial.value == '' ||
-         materia.value == '' || cantidad.value == '' || num_pagina.value == '') {
-         alertas('Todo los campos son requeridos', 'warning');
-     } else {
-        
-        const capagris = document.querySelector('.app-content');
-        document.querySelector('.lds-spinner').hidden = false;
-        capagris.classList.add('newClass');
-        
-            let formData=new FormData();
-            formData.append("file",imgg)
-             formData.append("upload_preset","mfa6ot9w")
-              
-          async function main() {
-            let progress
-            let urlimg
-          const xhr = new XMLHttpRequest();
-          const success = await new Promise((resolve) => { 
-             // setboto(true)
-            xhr.upload.addEventListener("progress", (event) => {
-              if (event.lengthComputable) {
-                console.log("upload progress:", Math.round((event.loaded*100.0)  / event.total ));
-                progress =  Math.round((event.loaded*100.0)  / event.total )
-                console.log(progress) 
-                
-              }
-              console.log("En proceso")
-           
-            });
-            xhr.addEventListener("loadend", () => {
-              resolve(xhr.readyState === 4 && xhr.status === 200);
-              console.log("Listo")
-            Swal.fire({
-              position: "top-end",
-              icon: "success",
-              title: "Datos Guardados",
-              showConfirmButton: false,
-              timer: 1500,
-            });
-            //location.reload();
-            });
-            xhr.open("POST", "https://api.cloudinary.com/v1_1/dylm4lqwh/image/upload");
-          
-            xhr.send(formData);
-            xhr.onreadystatechange = function () {
-              if (this.readyState == 4 && this.status == 200) {
-                  console.log(",rl",JSON.parse(this.responseText).secure_url);
-
-                  urlimg =JSON.parse(this.responseText).secure_url
-
-                   
-                   document.getElementById("urlimggen").value=urlimg;
-                  
-                   document.querySelector('.app-content').classList.remove('newClass');
-
-             }
-              //seturl(url)
-              console.log(urlimg,"url")
-          }
-          }); 
-          
-          console.log("success:", success);
-          console.log( "FIN")  
-          
-               const url = base_url + "Libros/registrar";
-               const frm = document.getElementById("frmLibro");
-               const http = new XMLHttpRequest();
-               http.open("POST", url, true);
-               http.send(new FormData(frm));
-               http.onreadystatechange = function() {
-                   if (this.readyState == 4 && this.status == 200) {
-                       const res = JSON.parse(this.responseText);
-                       $("#nuevoLibro").modal("hide");
-                      tblLibros.ajax.reload();
-                      frm.reset();
-                    // location.reload();
-                      alertas(res.msg, res.icono);   
-                  }
-              }   
-         }
-          main().catch(console.error);
+    if(subiendoPortada){
+        alertas('Esperá a que termine de subirse la portada','warning');
+        return;
     }
-}
-
-function btnEditarLibro(id) {
-
-    document.getElementById("title").textContent = "Actualizar Libro";
-    document.getElementById("btnAccion").textContent = "Modificar";
-    document.querySelector('.lds-spinner').hidden = true;
-     /*
-        let formData=new FormData();
-        formData.append("file",imgg)
-        formData.append("upload_preset","mfa6ot9w")
-          
-      async function main() {
-        let progress
-        let urlimg
-      const xhr = new XMLHttpRequest();
-      const success = await new Promise((resolve) => { 
-         // setboto(true)
-        xhr.upload.addEventListener("progress", (event) => {
-          if (event.lengthComputable) {
-            console.log("upload progress:", Math.round((event.loaded*100.0)  / event.total ));
-            progress =  Math.round((event.loaded*100.0)  / event.total )
-            console.log(progress) 
-            
-          }
-          console.log("En proceso")
-       
-        });
-
-        xhr.addEventListener("loadend", () => {
-          resolve(xhr.readyState === 4 && xhr.status === 200);
-          console.log("Listo")
-         
-
-        //location.reload();
-        });
-        xhr.open("POST", "https://api.cloudinary.com/v1_1/dylm4lqwh/image/upload");
-      
-        xhr.send(formData);
-        xhr.onreadystatechange = function () {
-          if (this.readyState == 4 && this.status == 200) {
-              console.log(",rl",JSON.parse(this.responseText).secure_url);
-
-              urlimg =JSON.parse(this.responseText).secure_url
-
-               
-               document.getElementById("urlimggen").value=urlimg;
-              
-               document.querySelector('.app-content').classList.remove('newClass');
-
-         }
-          //seturl(url)
-          console.log(urlimg,"url")
-      }
-      }); 
-      
-      console.log("success:", success);
-      console.log( "FIN") */
-
-      const url = base_url + "Libros/editar/" + id;
-      const http = new XMLHttpRequest();
-      http.open("GET", url, true);
-      http.send();
-      http.onreadystatechange = function() {
-          if (this.readyState == 4 && this.status == 200) {
-              const res = JSON.parse(this.responseText);
-              console.log(res)
-
-              document.getElementById("id").value = res.id_libro;
-              document.getElementById("titulo").value = res.titulo;
-
-                document.getElementById("autor").value=res.id_autor;
-                var autor = document.createElement('option');
-                autor.value = res.id_autor;
-                autor.innerHTML = res.autor;
-                document.getElementById("autor").appendChild(autor);
-
-
-                document.getElementById("editorial").value=res.id_editorial;
-                var editorial = document.createElement('option');
-                editorial.value = res.id_editorial;
-                editorial.innerHTML = res.editorial;
-                document.getElementById("editorial").appendChild(editorial);
-
-                document.getElementById("materia").value=res.id_materia;
-                var materia = document.createElement('option');
-                materia.value = res.id_materia;
-                materia.innerHTML = res.materia;
-                document.getElementById("materia").appendChild(materia);
-
-
-              document.getElementById("cantidad").value = res.cantidad;
-              document.getElementById("num_pagina").value = res.num_pagina;
-              document.getElementById("anio_edicion").value = res.anio_edicion;
-              document.getElementById("descripcion").value = res.descripcion;
-              document.getElementById("img-preview").src =  res.img_libros;
-              document.getElementById("icon-cerrar").innerHTML = `
-              <button class="btn btn-danger" onclick="deleteImg()">
-              <i class="fa fa-times-circle"></i></button>`;
-              document.getElementById("icon-image").classList.add("d-none");
-              document.getElementById("foto_actual").value = res.img_libros;
-              $("#nuevoLibro").modal("show");
-          }
-      } 
-     //}
-     //main().catch(console.error);
-
-
-
-
-    
-}
-
-function btnEliminarLibro(id) {
-    Swal.fire({
-        title: 'Esta seguro de eliminar?',
-        text: "El libro no se eliminará de forma permanente, solo cambiará el estado a inactivo!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Si!',
-        cancelButtonText: 'No'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const url = base_url + "Libros/eliminar/" + id;
-            const http = new XMLHttpRequest();
-            http.open("GET", url, true);
-            http.send();
-            http.onreadystatechange = function() {
-                if (this.readyState == 4 && this.status == 200) {
-                    const res = JSON.parse(this.responseText);
-                    tblLibros.ajax.reload();
-                    alertas(res.msg, res.icono);
-                }
-            }
-
-        }
-    })
-}
-
-function btnReingresarLibro(id) {
-    Swal.fire({
-        title: 'Esta seguro de reingresar?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Si!',
-        cancelButtonText: 'No'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const url = base_url + "Libros/reingresar/" + id;
-            const http = new XMLHttpRequest();
-            http.open("GET", url, true);
-            http.send();
-            http.onreadystatechange = function() {
-                if (this.readyState == 4 && this.status == 200) {
-                    const res = JSON.parse(this.responseText);
-                    tblLibros.ajax.reload();
-                    alertas(res.msg, res.icono);
-                }
-            }
-
-        }
-    })
-}
-
-function preview(e) {
-    console.log("first")
-    var input = document.getElementById('imagen');
-    var filePath = input.value;
-    var extension = /(\.png|\.jpeg|\.jpg)$/i;
-    if (!extension.exec(filePath)) {
-        alertas('Seleccione un archivo valido', 'warning');
-        deleteImg();
-        return false;
-    } else {
-        const url = e.target.files[0];
-        const urlTmp = URL.createObjectURL(url);
-        document.getElementById("img-preview").src = urlTmp;
-        document.getElementById("icon-image").classList.add("d-none");
-        document.getElementById("icon-cerrar").innerHTML = `
-        <button class="btn btn-danger" onclick="deleteImg()"><i class="fa fa-times-circle"></i></button>
-        `;
+    const f=document.getElementById('frmLibro');
+    const required=['titulo','autor','editorial','categoria','cantidad','num_pagina'];
+    if(required.some(id=>!document.getElementById(id).value)){
+        alertas('Todos los campos son requeridos','warning'); return;
     }
+    const http=new XMLHttpRequest();
+    http.open('POST',base_url+'Libros/registrar',true);
+    http.send(new FormData(f));
+    http.onreadystatechange=function(){
+        if(this.readyState===4){
+            try{const res=JSON.parse(this.responseText);if(res.icono==='success'){$('#nuevoLibro').modal('hide');f.reset();$('#autor,#editorial,#categoria').each(function(){ $(this).val(null).empty().trigger('change'); });document.getElementById('img-preview').src='';tblLibros.ajax.reload(null,false);}alertas(res.msg,res.icono);}
+            catch(e){console.error(this.responseText);alertas('Respuesta inválida del servidor','error');}
+        }
+    };
 }
 
-function deleteImg() {
-    document.getElementById("icon-cerrar").innerHTML = '';
-    document.getElementById("icon-image").classList.remove("d-none");
-    document.getElementById("img-preview").src = '';
-    document.getElementById("imagen").value = '';
-    document.getElementById("foto_actual").value = '';
+function btnEditarLibro(id){
+    const http=new XMLHttpRequest(); http.open('GET',base_url+'Libros/editar/'+id,true); http.send();
+    http.onreadystatechange=function(){
+        if(this.readyState!==4)return;
+        try{
+            const r=JSON.parse(this.responseText);
+            document.getElementById('title').textContent='Actualizar Libro';
+            document.getElementById('btnAccion').textContent='Modificar';
+            document.getElementById('id').value=r.id_libro;
+            document.getElementById('titulo').value=r.titulo||'';
+            setSelect2Value('autor',r.id_autor,r.autor);
+            setSelect2Value('editorial',r.id_editorial,r.editorial);
+            setSelect2Value('categoria',r.id_categoria,r.categoria);
+            document.getElementById('cantidad').value=r.cantidad||0;
+            document.getElementById('num_pagina').value=r.num_pagina||'';
+            document.getElementById('anio_edicion').value=r.anio_edicion||'';
+            document.getElementById('descripcion').value=r.descripcion||'';
+            document.getElementById('foto_actual').value=r.imagen||'';
+            document.getElementById('img-preview').src=r.imagen||'';
+            document.getElementById('urlimggen').value='';
+            document.getElementById('progresoPortada').textContent='';
+            cargarRestricciones(r.id_restriccion||1);
+            subiendoPortada=false;
+            document.getElementById('btnAccion').disabled=false;
+            $('#nuevoLibro').modal('show');
+        }catch(e){console.error(this.responseText);alertas('No fue posible cargar el libro','error');}
+    };
+}
+
+function preview(e){
+    const input=e.target;
+    const img=document.getElementById('img-preview');
+    if(!input.files || !input.files[0]){ return; }
+    const file=input.files[0];
+    if(!/^image\/(jpe?g|png)$/i.test(file.type)){
+        alertas('Formato de imagen no permitido','warning');
+        input.value='';
+        return;
+    }
+    const reader=new FileReader();
+    reader.onload=function(ev){ img.src=ev.target.result; };
+    reader.readAsDataURL(file);
+}
+
+function setSelect2Value(id,value,text){
+    const select=$('#'+id);
+    if(select.hasClass('select2-hidden-accessible')) select.val(null).trigger('change');
+    select.empty();
+    if(value){const option=new Option(text||value,value,true,true);select.append(option).trigger('change');}
+}
+window.frmLibros=frmLibros; window.registrarLibro=registrarLibro; window.btnEditarLibro=btnEditarLibro; window.btnEliminarLibro=btnEliminarLibro; window.btnReingresarLibro=btnReingresarLibro;
+function btnEliminarLibro(id){confirmarAccion('¿Eliminar el libro?','El libro quedará inactivo.',base_url+'Libros/eliminar/'+id,()=>tblLibros.ajax.reload(null,false));}
+function btnReingresarLibro(id){confirmarAccion('¿Reingresar el libro?','El libro volverá a estar activo.',base_url+'Libros/reingresar/'+id,()=>tblLibros.ajax.reload(null,false));}
+function confirmarAccion(titulo,texto,url,callback){
+    Swal.fire({title:titulo,text:texto,icon:'warning',showCancelButton:true,confirmButtonText:'Sí',cancelButtonText:'No'}).then(r=>{
+        if(!r.isConfirmed)return;const x=new XMLHttpRequest();x.open('GET',url,true);x.send();x.onreadystatechange=function(){if(this.readyState===4){const res=JSON.parse(this.responseText);alertas(res.msg,res.icono);if(res.icono==='success')callback();}};
+    });
 }

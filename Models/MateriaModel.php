@@ -1,78 +1,13 @@
 <?php
+/** CRUD de materias. En biblioteca_v3 las materias son un catálogo independiente. */
 class MateriaModel extends Query
 {
-    public function __construct()
-    {
-        parent::__construct();
-    }
-    public function getMaterias()
-    {
-        
-        $sql="SELECT m.Idmateria,c.Carrera_descripcion,m.Materia_descripcion,m.materia_estado FROM materias m INNER JOIN carreras c WHERE m.Tbl_carreras_idCarrera=c.Idcarrera";
-        $res = $this->selectAll($sql);
-        return $res;
-    }
-    public function insertarMateria($carrera,$materia)
-    {
-        $verificar = "SELECT * FROM materias WHERE Materia_descripcion = '$materia'";
-        $existe = $this->select($verificar);
-        if (empty($existe)) {
-            $query = "INSERT INTO materias (Tbl_carreras_idCarrera,Materia_descripcion) VALUES (?,?)";
-            $datos = array($carrera,$materia);
-            $data = $this->save($query, $datos);
-            if ($data == 1) {
-                $res = "ok";
-            } else {
-                $res = "error";
-            }
-        } else {
-            $res = "existe";
-        }
-        return $res;
-    }
-
-    public function editMateria($id)
-    {
-        $sql = "SELECT * FROM materias WHERE Idmateria = $id";
-        $res = $this->select($sql);
-        return $res;
-    } 
-
-    public function actualizarMateria($carrera,$materia, $id)
-    {
-        $query = "UPDATE materias SET Tbl_carreras_idCarrera=?, Materia_descripcion = ? WHERE Idmateria = ?";
-        $datos = array($carrera,$materia, $id);
-        $data = $this->save($query, $datos);
-        if ($data == 1) {
-            $res = "modificado";
-        } else {
-            $res = "error";
-        }
-        return $res;
-    }
-    
-    public function estadoMateria($estado, $id)
-    {
-        $query = "UPDATE materias SET materia_estado = ? WHERE Idmateria = ?";
-        $datos = array($estado, $id);
-        $data = $this->save($query, $datos);
-        return $data;
-    }
-    public function verificarPermisos($id_user, $permiso)
-    {
-        $tiene = false;
-        $sql = "SELECT p.*, d.* FROM permisos p INNER JOIN detalle_permisos d ON p.id = d.id_permiso WHERE d.id_usuario = $id_user AND p.nombre = '$permiso'";
-        $existe = $this->select($sql);
-        if ($existe != null || $existe != "") {
-            $tiene = true;
-        }
-        return $tiene;
-    }
-   
-    public function buscarMateria($valor)
-    {
-        $sql = "SELECT Idmateria, Materia_descripcion AS text FROM materias WHERE Materia_descripcion LIKE '%" . $valor . "%'  AND materia_estado = 1 LIMIT 10";
-        $data = $this->selectAll($sql);
-        return $data;
-    }
+    public function __construct(){parent::__construct();}
+    public function getMaterias(){return $this->selectAll("SELECT id_materia AS Idmateria,nombre AS Materia_descripcion,activo AS materia_estado FROM materias ORDER BY nombre");}
+    public function insertarMateria($materia){if($this->selectPrepared("SELECT id_materia FROM materias WHERE nombre=? LIMIT 1",[$materia]))return'existe';return $this->save("INSERT INTO materias(nombre,activo) VALUES(?,1)",[$materia])?'ok':'error';}
+    public function editMateria($id){return $this->selectPrepared("SELECT id_materia AS Idmateria,nombre AS Materia_descripcion,activo AS materia_estado FROM materias WHERE id_materia=?",[$id]);}
+    public function actualizarMateria($materia,$id){$dup=$this->selectPrepared("SELECT id_materia FROM materias WHERE nombre=? AND id_materia<>? LIMIT 1",[$materia,$id]);if($dup)return'existe';return $this->save("UPDATE materias SET nombre=? WHERE id_materia=?",[$materia,$id])?'modificado':'error';}
+    public function estadoMateria($estado,$id){return $this->save("UPDATE materias SET activo=? WHERE id_materia=?",[$estado,$id]);}
+    public function buscarMateria($valor){return $this->selectAllPrepared("SELECT id_materia AS id,nombre AS text FROM materias WHERE activo=1 AND nombre LIKE ? LIMIT 20",['%'.$valor.'%']);}
 }
+?>

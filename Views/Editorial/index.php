@@ -4,7 +4,7 @@
         <h1><i class="fa fa-dashboard"></i> Editorial</h1>
     </div>
 </div>
-<button class="btn btn-primary mb-2" type="button" onclick="frmEditorial()"><i class="fa fa-plus"></i></button>
+<button class="btn btn-primary mb-2" type="button" onclick="frmEditorial()"><i class="fa fa-plus"></i> Nueva editorial</button>
 <div class="row">
     <div class="col-lg-12">
         <div class="tile">

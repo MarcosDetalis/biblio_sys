@@ -7,6 +7,15 @@
 * Author:  Olivier PLATHEY                                                     *
 *******************************************************************************/
 
+// FPDF 1.82 usa utf8_encode()/utf8_decode() internamente, que PHP marca como
+// "deprecated" desde la 8.2. En un hosting con display_errors activado, ese
+// aviso se imprime ANTES del contenido del PDF y lo corrompe por completo
+// (deja de ser un PDF válido). Se silencia puntualmente solo este aviso,
+// solo mientras se genera el PDF (no afecta al resto de la aplicación).
+if (defined('E_DEPRECATED')) {
+    error_reporting(error_reporting() & ~E_DEPRECATED);
+}
+
 define('FPDF_VERSION','1.82');
 
 class FPDF

@@ -1,76 +1,13 @@
 <?php
+/** CRUD de autores. */
 class AutorModel extends Query
 {
-    public function __construct()
-    {
-        parent::__construct();
-    }
-    public function getAutor()
-    {
-        $sql = "SELECT * FROM autores";
-        $res = $this->selectAll($sql);
-        return $res;
-    }
-// modificar
-    public function insertarAutor($nombre,$pais)
-    {
-        $verificar = "SELECT * FROM autores WHERE Autor_nombres = '$nombre'";
-        $existe = $this->select($verificar);
-        if (empty($existe)) {
-            $query = "INSERT INTO autores(Autor_nombres, Autor_pais) VALUES (?, ?)";
-            $datos = array($nombre, $pais);
-            $data = $this->save($query, $datos);
-            if ($data == 1) {
-                $res = "ok";
-            } else {
-                $res = "error";
-            }
-        } else {
-            $res = "existe";
-        }
-        return $res;
-    }
-     public function editAutor($id)
-     {
-         $sql = "SELECT Idautor,Autor_nombres,Autor_pais,Autor_estado FROM autores WHERE Idautor = $id";
-         $res = $this->select($sql);
-         return $res;
-     }
-     public function actualizarAutor($nombre, $pais, $id)
-     {
-         $query = "UPDATE autores SET Autor_nombres = ?, Autor_pais = ? WHERE Idautor = ?";
-         $datos = array($nombre, $pais ,$id);
-         $data = $this->save($query, $datos);
-         if ($data == 1) {
-             $res = "modificado";
-         } else {
-             $res = "error";
-         }
-         return $res;
-     }
-     public function estadoAutor($estado, $id)
-     {
-         $query = "UPDATE autores SET Autor_estado = ? WHERE Idautor = ?";
-         $datos = array($estado, $id);
-         $data = $this->save($query, $datos);
-         return $data;
-     }
-
-        //comentando anteiormente
-    // public function verificarPermisos($id_user, $permiso)
-    // {
-    //     $tiene = false;
-    //     $sql = "SELECT p.*, d.* FROM permisos p INNER JOIN detalle_permisos d ON p.id = d.id_permiso WHERE d.id_usuario = $id_user AND p.nombre = '$permiso'";
-    //     $existe = $this->select($sql);
-    //     if ($existe != null || $existe != "") {
-    //         $tiene = true;
-    //     }
-    //     return $tiene;
-    // }
-    public function buscarAutor($valor)
-    {
-        $sql = "SELECT Idautor, Autor_nombres AS text FROM Autores WHERE Autor_nombres LIKE '%" . $valor . "%'  AND Autor_estado = 1 LIMIT 10";
-        $data = $this->selectAll($sql);
-        return $data;
-    }
+    public function __construct(){parent::__construct();}
+    public function getAutor(){return $this->selectAll("SELECT id_autor AS Idautor,nombres AS Autor_nombres,apellidos AS Autor_apellidos,nacionalidad AS Autor_pais,activo AS Autor_estado,CONCAT(nombres,' ',apellidos) AS nombre_completo FROM autores ORDER BY apellidos,nombres");}
+    public function insertarAutor($nombres,$apellidos,$pais){if($this->selectPrepared("SELECT id_autor FROM autores WHERE nombres=? AND apellidos=? LIMIT 1",[$nombres,$apellidos]))return'existe';return $this->save("INSERT INTO autores(nombres,apellidos,nacionalidad,activo) VALUES(?,?,?,1)",[$nombres,$apellidos,$pais])?'ok':'error';}
+    public function editAutor($id){return $this->selectPrepared("SELECT id_autor AS Idautor,nombres AS Autor_nombres,apellidos AS Autor_apellidos,nacionalidad AS Autor_pais,activo AS Autor_estado FROM autores WHERE id_autor=?",[$id]);}
+    public function actualizarAutor($nombres,$apellidos,$pais,$id){$dup=$this->selectPrepared("SELECT id_autor FROM autores WHERE nombres=? AND apellidos=? AND id_autor<>? LIMIT 1",[$nombres,$apellidos,$id]);if($dup)return'existe';return $this->save("UPDATE autores SET nombres=?,apellidos=?,nacionalidad=? WHERE id_autor=?",[$nombres,$apellidos,$pais,$id])?'modificado':'error';}
+    public function estadoAutor($estado,$id){return $this->save("UPDATE autores SET activo=? WHERE id_autor=?",[$estado,$id]);}
+    public function buscarAutor($valor){$v='%'.$valor.'%';return $this->selectAllPrepared("SELECT id_autor AS id,CONCAT(nombres,' ',apellidos) AS text FROM autores WHERE activo=1 AND (nombres LIKE ? OR apellidos LIKE ? OR CONCAT(nombres,' ',apellidos) LIKE ?) ORDER BY apellidos,nombres LIMIT 20",[$v,$v,$v]);}
 }
+?>

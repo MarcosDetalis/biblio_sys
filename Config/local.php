@@ -1,0 +1,33 @@
+<?php
+/**
+ * ============================================================
+ * ARCHIVO SOLO LOCAL — NO SUBIR A GIT, NO SUBIR A CLEVER CLOUD,
+ * NO COMPARTIR CON NADIE (ni siquiera pegarlo acá en el chat).
+ * ============================================================
+ *
+ * Este archivo hace que tu XAMPP local se conecte a la MISMA base de datos
+ * remota de Clever Cloud que usa la app ya publicada, sin que la contraseña
+ * quede escrita en el código que subís al repositorio.
+ *
+ * CÓMO USARLO:
+ * 1. Completá los 5 valores de abajo con los datos reales de tu panel de
+ *    Clever Cloud ("Database Credentials"). Usá la contraseña NUEVA,
+ *    después de haberla rotado (la vieja quedó expuesta en zips anteriores).
+ * 2. Guardá este archivo tal cual, con este mismo nombre, en:
+ *    C:\xampp\htdocs\biblio_sys-main\Config\local.php
+ * 3. Lo detecta solo — no hace falta tocar Config.php para nada más.
+ *
+ * Si en algún momento subís el proyecto entero a un repositorio (git),
+ * asegurate de que Config/local.php esté en el .gitignore para que nunca
+ * viaje junto con el resto del código.
+ */
+
+putenv('MYSQL_ADDON_HOST=bfbgwajwyb7i2iyjp1fh-mysql.services.clever-cloud.com');
+putenv('MYSQL_ADDON_USER=udkzkx5mndhvsnsu');
+putenv('MYSQL_ADDON_PASSWORD=»la contraseña NUEVA, después de rotarla«');
+putenv('MYSQL_ADDON_DB=bfbgwajwyb7i2iyjp1fh');
+putenv('MYSQL_ADDON_PORT=3306');
+
+putenv('SMTP_USER=desarrollofreepmg@gmail.com');
+putenv('SMTP_PASS=boijniqdaijthivo');
+putenv('SMTP_FROM_NAME=Equipo de Soporte - Sistema de Biblioteca');

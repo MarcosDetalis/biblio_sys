@@ -1,149 +1,53 @@
 <?php
+/** Panel principal, configuración y reportes. */
 class Configuracion extends Controller
 {
-    public function __construct()
-    {
-        session_start();
-        if (empty($_SESSION['activo'])) {
-            header("location: " . base_url);
-        }
+    public function __construct(){
+        if(session_status()===PHP_SESSION_NONE)session_start();
+        if(empty($_SESSION['activo'])){header('Location: '.base_url);exit;}
         parent::__construct();
     }
-    public function index()
-    {
-		// $id_user = $_SESSION['id_usuario'];
-        // $perm = $this->model->verificarPermisos($id_user, "Configuracion");
-        // if (!$perm && $id_user != 1) {
-        //     $this->views->getView($this, "permisos");
-        //     exit;
-        // }
-        $data = $this->model->selectConfiguracion();
-        $this->views->getView($this, "index", $data);
+    public function index(){
+        if(!$this->model->verificarPermisos($_SESSION['id_usuario'],'Configuracion')){$this->views->getView($this,'permisos');exit;}
+        $this->views->getView($this,'index',$this->model->selectConfiguracion());
     }
-    public function actualizar()
-    {
-		$id_user = $_SESSION['id_usuario'];
-        $perm = $this->model->verificarPermisos($id_user, "Configuracion");
-        if (!$perm && $id_user != 1) {
-            $this->views->getView($this, "permisos");
-            exit;
-        }
-        $id = strClean($_POST['id']);
-        $nombre = strClean($_POST['nombre']);
-        $telefono = strClean($_POST['telefono']);
-        $direccion = strClean($_POST['direccion']);
-        $correo = strClean($_POST['correo']);
-        $img = $_FILES['imagen'];
-        $tmpName = $img['tmp_name'];
-        if (empty($id) || empty($nombre) || empty($telefono) || empty($direccion) || empty($correo)) {
-            $msg = array('msg' => 'Todo los campos son requeridos', 'icono' => 'warning');
-        } else {
-            $name = "logo.png";
-            $destino = 'Assets/img/logo.png';
-            $data = $this->model->actualizarConfig($nombre, $telefono, $direccion, $correo, $name, $id);
-            if ($data == "modificado") {
-                $msg = array('msg' => 'Datos de la empresa modificado', 'icono' => 'success');
-                if (!empty($img['name'])) {
-                    $extension = pathinfo($img['name'], PATHINFO_EXTENSION);
-                    $formatos_permitidos =  array('png', 'jpeg', 'jpg');
-                    $extension = pathinfo($img['name'], PATHINFO_EXTENSION);
-                    if (!in_array($extension, $formatos_permitidos)) {
-                        $msg = array('msg' => 'Archivo no permitido', 'icono' => 'warning');
-                    }else{
-                        move_uploaded_file($tmpName, $destino);
-                    }
-                }
-            }
-        }
-        
-        echo json_encode($msg, JSON_UNESCAPED_UNICODE);
-        die();
+    public function actualizar(){
+        if(!$this->model->verificarPermisos($_SESSION['id_usuario'],'Configuracion')){echo json_encode(['msg'=>'No tienes permisos','icono'=>'error']);exit;}
+        $nombre=trim($_POST['nombre']??'');$telefono=trim($_POST['telefono']??'');$direccion=trim($_POST['direccion']??'');$correo=trim($_POST['correo']??'');
+        if($nombre===''||$telefono===''||$direccion===''||$correo===''){echo json_encode(['msg'=>'Todos los campos son requeridos','icono'=>'warning']);exit;}
+        $img='logo.png';
+        if(!empty($_FILES['imagen']['name'])&&is_uploaded_file($_FILES['imagen']['tmp_name'])){$ext=strtolower(pathinfo($_FILES['imagen']['name'],PATHINFO_EXTENSION));if(!in_array($ext,['jpg','jpeg','png'],true)){echo json_encode(['msg'=>'Formato de imagen no permitido','icono'=>'warning']);exit;}$img='logo_'.date('YmdHis').'.'.$ext;move_uploaded_file($_FILES['imagen']['tmp_name'],'Assets/img/'.$img);}
+        $d=$this->model->actualizarConfig($nombre,$telefono,$direccion,$correo,$img,1);echo json_encode(['msg'=>$d==='modificado'?'Configuración actualizada':'Error al actualizar','icono'=>$d==='modificado'?'success':'error']);exit;
     }
-    public function admin()
-    {
-        $data['libros'] = $this->model->selectDatos('libros','Libro_estado');
-         $data['materias'] = $this->model->selectDatos('materias','materia_estado');
-         //creacion  model que reciba 3 parametro para estudiantes y usuario ya que ambos compartes tabla
-         $data['usuarios'] = $this->model->selectDatosespeciales('usuarios','Usuario_estado','Tbl_tipo_usuarios_idTipo_usuario');
-         $data['autores'] = $this->model->selectDatos('autores','Autor_estado');
-         $data['editoriales'] = $this->model->selectDatos('editoriales','edi_estado');
-         //$data['reservas_cab'] = $this->model->selectDatos('reservas_cab','');
-         $data['usuarios'] = $this->model->selectDatos('usuarios','Usuario_estado');
-        $this->views->getView($this, "home", $data);
+    public function admin(){
+        $res=$this->model->getResumen();
+        $data=[
+            'usuarios'=>['total'=>(int)$res['usuarios_activos']],
+            'libros'=>['total'=>(int)$res['libros_activos']],
+            'ejemplares'=>['total'=>(int)$res['ejemplares']],
+            'disponibles'=>['total'=>(int)$res['disponibles']],
+            'reservas'=>['total'=>(int)$res['reservas_activas']],
+            'prestamos'=>['total'=>(int)$res['prestamos_activos']],
+            'multas'=>['total'=>(int)$res['multas_pendientes']],
+            'materias'=>$this->model->selectDatos('materias','activo'),
+            'autores'=>$this->model->selectDatos('autores','activo'),
+            'editoriales'=>$this->model->selectDatos('editoriales','activo'),
+            // Antes esta tarjeta mostraba el total de TODOS los usuarios (admin +
+            // bibliotecario + profesor + alumnos), no solo estudiantes.
+            'estudiantes'=>['total'=>(int)$res['alumnos_activos']],
+            'profesores'=>['total'=>(int)$res['profesores_activos']],
+        ];
+        $this->views->getView($this,'home',$data);
     }
-    public function grafico()
-    {
-        $data = $this->model->getReportes();
-        echo json_encode($data);
-        die();
+    public function grafico(){echo json_encode($this->model->getReportes(),JSON_UNESCAPED_UNICODE);exit;}
+    public function error(){$this->views->getView($this,'error');}
+    public function vacio(){$this->views->getView($this,'vacio');}
+    public function verificar(){echo json_encode($this->model->getVerificarPrestamos(date('Y-m-d')),JSON_UNESCAPED_UNICODE);exit;}
+    public function libros(){
+        $datos=$this->model->selectConfiguracion();$prestamo=$this->model->getVerificarPrestamos(date('Y-m-d'));if(empty($prestamo)){header('Location: '.base_url.'Configuracion/vacio');exit;}
+        require_once 'Libraries/pdf/fpdf.php';$pdf=new FPDF('P','mm','letter');$pdf->AddPage();$pdf->SetMargins(10,10,10);$pdf->SetFont('Arial','B',12);$pdf->Cell(195,5,utf8_decode($datos['nombre']),0,1,'C');$pdf->Ln();$pdf->SetFont('Arial','B',10);$pdf->Cell(14,5,'N°',1,0);$pdf->Cell(60,5,'Usuario',1,0);$pdf->Cell(90,5,'Libro',1,0);$pdf->Cell(25,5,'Vencimiento',1,1);$pdf->SetFont('Arial','',9);$i=1;foreach($prestamo as $r){$pdf->Cell(14,5,$i++,1,0);$pdf->Cell(60,5,utf8_decode($r['nombre']),1,0);$pdf->Cell(90,5,utf8_decode($r['titulo']),1,0);$pdf->Cell(25,5,$r['fecha_prestamo'],1,1);} $pdf->Output('prestamos_vencidos.pdf','I');
     }
-    public function error()
-    {
-        $this->views->getView($this, "error");
-    }
-    public function vacio()
-    {
-        $this->views->getView($this, "vacio");
-    }
-    public function verificar()
-    {
-        $date = date('Y-m-d');
-        $data = $this->model->getVerificarPrestamos($date);
-        echo json_encode($data, JSON_UNESCAPED_UNICODE);
-        die();
-    }
-    public function libros()
-    {
-        $datos = $this->model->selectConfiguracion();
-        $date = date('Y-m-d');
-        $prestamo = $this->model->getVerificarPrestamos($date);
-        if (empty($prestamo)) {
-            header('Location: ' . base_url . 'Configuracion/vacio');
-        }
-        require_once 'Libraries/pdf/fpdf.php';
-        $pdf = new FPDF('P', 'mm', 'letter');
-        $pdf->AddPage();
-        $pdf->SetMargins(10, 10, 10);
-        $pdf->SetTitle("Prestamos");
-        $pdf->SetFont('Arial', 'B', 12);
-        $pdf->Cell(195, 5, utf8_decode($datos['nombre']), 0, 1, 'C');
-
-        $pdf->Image(base_url . "Assets/img/logo_uni.jpg", 55, 12, 20, 20, 'JPG');
-
-
-        $pdf->SetFont('Arial', 'B', 10);
-        $pdf->Cell(20, 5, utf8_decode("Teléfono: "), 0, 0, 'L');
-        $pdf->SetFont('Arial', '', 10);
-        $pdf->Cell(20, 5, $datos['telefono'], 0, 1, 'L');
-        $pdf->SetFont('Arial', 'B', 10);
-        $pdf->Cell(20, 5, utf8_decode("Dirección: "), 0, 0, 'L');
-        $pdf->SetFont('Arial', '', 10);
-        $pdf->Cell(20, 5, utf8_decode($datos['direccion']), 0, 1, 'L');
-        $pdf->SetFont('Arial', 'B', 10);
-        $pdf->Cell(20, 5, "Correo: ", 0, 0, 'L');
-        $pdf->SetFont('Arial', '', 10);
-        $pdf->Cell(20, 5, utf8_decode($datos['correo']), 0, 1, 'L');
-        $pdf->Ln();
-        $pdf->SetFont('Arial', 'B', 10);
-        $pdf->SetFillColor(0, 0, 0);
-        $pdf->SetTextColor(255, 255, 255);
-        $pdf->Cell(196, 5, "Detalle de Prestamos", 1, 1, 'C', 1);
-        $pdf->SetTextColor(0, 0, 0);
-        $pdf->Cell(14, 5, utf8_decode('N°'), 1, 0, 'L');
-        $pdf->Cell(50, 5, utf8_decode('Estudiantes'), 1, 0, 'L');
-        $pdf->Cell(87, 5, 'Libros', 1, 0, 'L');
-        $pdf->Cell(30, 5, 'Fecha Prestamo', 1, 0, 'L');
-        $pdf->Cell(15, 5, 'Cant.', 1, 1, 'L');
-        $pdf->SetFont('Arial', '', 10);
-        $contador = 1;
-        foreach ($prestamo as $row) {
-            $pdf->Cell(14, 5, $contador, 1, 0, 'L');
-            $pdf->Cell(50, 5, $row['nombre'], 1, 0, 'L');
-            $pdf->Cell(87, 5, utf8_decode($row['titulo']), 1, 0, 'L');
-            $pdf->Cell(30, 5, $row['fecha_prestamo'], 1, 0, 'L');
-            $pdf->Cell(15, 5, $row['cantidad'], 1, 1, 'L');
-            $contador++;
-        }
-        $pdf->Output("prestamos.pdf", "I");
+    public function notificaciones(){
+        echo json_encode($this->model->notificaciones((int)$_SESSION['id_usuario'],$this->esStaff()),JSON_UNESCAPED_UNICODE);exit;
     }
 }

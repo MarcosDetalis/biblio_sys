@@ -6,7 +6,7 @@
 </div>
  
 
-<button class="btn btn-primary mb-2" type="button" onclick="frmCarrera()"><i class="fa fa-plus"></i></button>
+<button class="btn btn-primary mb-2" type="button" onclick="frmCarrera()"><i class="fa fa-plus"></i> Nueva carrera</button>
 <div class="row">
     <div class="col-lg-12">
         <div class="tile">

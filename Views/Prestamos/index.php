@@ -4,7 +4,7 @@
         <h1><i class="fa fa-dashboard"></i> Solicitud</h1>
     </div>
 </div>
-<button class="btn btn-primary mb-2" onclick="frmPrestar()"><i class="fa fa-plus"></i></button>
+<button class="btn btn-primary mb-2" onclick="frmPrestar()"><i class="fa fa-plus"></i> Nuevo préstamo</button>
 <div class="tile">
     <div class="tile-body">
         <div class="table-responsive">

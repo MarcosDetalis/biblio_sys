@@ -24,8 +24,8 @@
             <form class="login-form" id="frmLogin" onsubmit="frmLogin(event);">
                 <h3 class="login-head"><i class="fa fa-lg fa-fw fa-user"></i>Iniciar Sesión</h3>
                 <div class="form-group">
-                    <label class="control-label">USUARIO</label>
-                    <input class="form-control" type="text" placeholder="Usuario" id="usuario" name="usuario" autofocus required>
+                    <label class="control-label">CORREO O CÉDULA</label>
+                    <input class="form-control" type="text" placeholder="Correo o cédula" id="usuario" name="usuario" autofocus required>
                 </div>
                 <div class="form-group">
                     <label class="control-label">CONTRASEÑA</label>
@@ -37,6 +37,7 @@
                 <div class="form-group btn-container">
                     <button class="btn btn-primary btn-block" type="submit"><i class="fa fa-sign-in fa-lg fa-fw"></i>Login</button>
                 </div>
+                <p class="text-center"><a href="<?php echo base_url; ?>Usuarios/recuperar">¿Olvidaste tu contraseña?</a></p>
             </form>
         </div>
     </section>

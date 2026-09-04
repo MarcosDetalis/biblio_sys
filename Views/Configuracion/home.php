@@ -41,7 +41,15 @@
         <div class="widget-small warning coloured-icon"><i class="icon fa fa-graduation-cap fa-3x"></i>
             <a class="info" href="<?php echo base_url; ?>Estudiantes">
                 <h4>Estudiantes</h4>
-                <p><b><?php echo $data['usuarios']['total'] ?></b></p>
+                <p><b><?php echo $data['estudiantes']['total'] ?></b></p>
+            </a>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="widget-small primary coloured-icon"><i class="icon fa fa-user fa-3x"></i>
+            <a class="info" href="<?php echo base_url; ?>Usuarios">
+                <h4>Profesores</h4>
+                <p><b><?php echo $data['profesores']['total'] ?></b></p>
             </a>
         </div>
     </div>

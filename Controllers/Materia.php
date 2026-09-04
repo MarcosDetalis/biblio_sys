@@ -1,113 +1,27 @@
 <?php
 class Materia extends Controller
 {
-    public function __construct()
-    {
-        session_start();
-        if (empty($_SESSION['activo'])) {
-            header("location: " . base_url);
-        }
+    public function __construct(){
+        if(session_status()===PHP_SESSION_NONE)session_start();
+        if(empty($_SESSION['activo'])){header('Location: '.base_url);exit;}
         parent::__construct();
-        $id_user = $_SESSION['id_usuario'];
-        $perm = $this->model->verificarPermisos($id_user, "Materia");
-        if (!$perm && $id_user != 1) {
-            $this->views->getView($this, "permisos");
-            exit;
-        }
+        if(!$this->model->verificarPermisos($_SESSION['id_usuario'],'Materia')){$this->views->getView($this,'permisos');exit;}
     }
-    public function index()
-    {
-        $this->views->getView($this, "index");
+    public function index(){$this->views->getView($this,'index');}
+    public function listar(){try{
+        $data=$this->model->getMaterias();
+        foreach($data as &$r){$id=(int)$r['Idmateria'];$activo=(int)$r['materia_estado']===1;$r['materia_estado']=$activo?'<span class="badge badge-success">Activo</span>':'<span class="badge badge-danger">Inactivo</span>';$r['acciones']=$activo?'<button class="btn btn-primary" onclick="btnEditarMat('.$id.')"><i class="fa fa-pencil-square-o"></i></button> <button class="btn btn-danger" onclick="btnEliminarMat('.$id.')"><i class="fa fa-trash-o"></i></button>':'<button class="btn btn-success" onclick="btnReingresarMat('.$id.')"><i class="fa fa-reply-all"></i></button>';}
+        echo json_encode(array_values($data),JSON_UNESCAPED_UNICODE);exit;
+    }catch(Throwable $e){error_log('Materia/listar '.$e->getMessage());http_response_code(500);echo json_encode(['error'=>'No fue posible cargar las materias'],JSON_UNESCAPED_UNICODE);exit;}}
+    public function registrar(){
+        $materia=trim($_POST['Materia_descripcion']??'');$id=(int)($_POST['Idmateria']??0);
+        if($materia===''){echo json_encode(['msg'=>'El nombre de la materia es requerido','icono'=>'warning']);exit;}
+        $d=$id===0?$this->model->insertarMateria($materia):$this->model->actualizarMateria($materia,$id);
+        $m=['ok'=>['Materia registrada','success'],'existe'=>['La materia ya existe','warning'],'modificado'=>['Materia modificada','success']];$r=$m[$d]??['Error al guardar la materia','error'];echo json_encode(['msg'=>$r[0],'icono'=>$r[1]],JSON_UNESCAPED_UNICODE);exit;
     }
-   
-    public function listar()
-    {
-        $data = $this->model->getMaterias();
-        for ($i = 0; $i < count($data); $i++) {
-            if ($data[$i]['materia_estado'] == 1) {
-                $data[$i]['materia_estado'] = '<span class="badge badge-success">Activo</span>';
-                $data[$i]['acciones'] = '<div>
-                <button class="btn btn-primary" type="button" onclick="btnEditarMat(' . $data[$i]['Idmateria'] . ');"><i class="fa fa-pencil-square-o"></i></button>
-                <button class="btn btn-danger" type="button" onclick="btnEliminarMat(' . $data[$i]['Idmateria'] . ');"><i class="fa fa-trash-o"></i></button>
-                <div/>';
-            } else {
-                $data[$i]['materia_estado'] = '<span class="badge badge-danger">Inactivo</span>';
-                $data[$i]['acciones'] = '<div>
-                <button class="btn btn-success" type="button" onclick="btnReingresarMat(' . $data[$i]['Idmateria'] . ');"><i class="fa fa-reply-all"></i></button>
-                <div/>';
-            }
-        }
-        echo json_encode($data, JSON_UNESCAPED_UNICODE);
-        die();
-    }
-    
-    public function registrar()
-    {
-        $carrera = strClean($_POST['Tbl_carreras_idCarrera']);
-        $materia = strClean($_POST['Materia_descripcion']);
-        $id = strClean($_POST['Idmateria']);
-        if (empty($carrera) || empty($materia)  ) {
-            $msg = array('msg' => 'todos los campos son requeridos', 'icono' => 'warning');
-        } else {
-            if ($id == "") {
-                $data = $this->model->insertarMateria($carrera,$materia);
-                if ($data == "ok") {
-                    $msg = array('msg' => 'Materia registrado', 'icono' => 'success');
-                } else if ($data == "existe") {
-                    $msg = array('msg' => 'La materia ya existe', 'icono' => 'warning');
-                } else {
-                    $msg = array('msg' => 'Error al registrar', 'icono' => 'error');
-                }
-            } else {
-                $data = $this->model->actualizarMateria($carrera,$materia, $id);
-                if ($data == "modificado") {
-                    $msg = array('msg' => 'Materia modificado', 'icono' => 'success');
-                } else {
-                    $msg = array('msg' => 'Error al modificar', 'icono' => 'error');
-                }
-            }
-        }
-        echo json_encode($msg, JSON_UNESCAPED_UNICODE);
-        die();
-    }
-    
-    public function editar($id)
-    {
-        $data = $this->model->editMateria($id);
-        echo json_encode($data, JSON_UNESCAPED_UNICODE);
-        die();
-    }
-    
-    public function eliminar($id)
-    {
-        $data = $this->model->estadoMateria(0, $id);
-        if ($data == 1) {
-            $msg = array('msg' => 'Materia dado de baja', 'icono' => 'success');
-        } else {
-            $msg = array('msg' => 'Error al eliminar', 'icono' => 'error');
-        }
-        echo json_encode($msg, JSON_UNESCAPED_UNICODE);
-        die();
-    }
-    
-    public function reingresar($id)
-    {
-        $data = $this->model->estadoMateria(1, $id);
-        if ($data == 1) {
-            $msg = array('msg' => 'Materia restaurado', 'icono' => 'success');
-        } else {
-            $msg = array('msg' => 'Error al restaurar', 'icono' => 'error');
-        }
-        echo json_encode($msg, JSON_UNESCAPED_UNICODE);
-        die();
-    }
-    public function buscarMateria()
-    {
-        if (isset($_GET['q'])) {
-            $valor = $_GET['q'];
-            $data = $this->model->buscarMateria($valor);
-            echo json_encode($data, JSON_UNESCAPED_UNICODE);
-            die();
-        }
-    }
+    public function editar($id){echo json_encode($this->model->editMateria((int)$id),JSON_UNESCAPED_UNICODE);exit;}
+    public function eliminar($id){$ok=$this->model->estadoMateria(0,(int)$id);echo json_encode(['msg'=>$ok?'Materia dada de baja':'Error al eliminar','icono'=>$ok?'success':'error']);exit;}
+    public function reingresar($id){$ok=$this->model->estadoMateria(1,(int)$id);echo json_encode(['msg'=>$ok?'Materia restaurada':'Error al restaurar','icono'=>$ok?'success':'error']);exit;}
+    public function buscarMateria(){echo json_encode($this->model->buscarMateria(trim($_GET['q']??'')),JSON_UNESCAPED_UNICODE);exit;}
 }
+?>

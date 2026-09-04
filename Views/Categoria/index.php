@@ -1,0 +1,8 @@
+<?php include "Views/Templates/header.php"; ?>
+<div class="app-title"><div><h1><i class="fa fa-list-alt"></i> Categorías</h1></div></div>
+<button class="btn btn-primary mb-2" type="button" onclick="frmCategoria()"><i class="fa fa-plus"></i> Nueva categoría</button>
+<div class="row"><div class="col-lg-12"><div class="tile"><div class="tile-body"><div class="table-responsive">
+<table class="table table-light mt-4" id="tblCategoria"><thead class="thead-dark"><tr><th>Id</th><th>Nombre</th><th>Estado</th><th></th></tr></thead><tbody></tbody></table>
+</div></div></div></div></div>
+<div id="nuevoCategoria" class="modal fade" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-primary text-white"><h5 class="modal-title" id="titleCat">Registro Categoría</h5><button class="close" data-dismiss="modal"><span>&times;</span></button></div><div class="modal-body"><form id="frmCategoriaForm" onsubmit="registrarCategoria(event)"><input type="hidden" id="Idcategoria" name="Idcategoria"><div class="form-group"><label for="categoria">Categoría</label><input id="categoria" class="form-control" type="text" name="Categoria_descripcion" required placeholder="Nombre de la categoría (ej. Tecnología, Literatura...)"></div><small class="text-muted">Esta es la categoría que usan los alumnos y profesores para filtrar el catálogo.</small><br><br><button class="btn btn-primary" type="submit" id="btnAccionCat">Registrar</button> <button class="btn btn-danger" type="button" data-dismiss="modal">Cancelar</button></form></div></div></div></div>
+<?php include "Views/Templates/footer.php"; ?>

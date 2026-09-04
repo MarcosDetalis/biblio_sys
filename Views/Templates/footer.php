@@ -40,18 +40,22 @@
 <script src="<?php echo base_url; ?>Assets/js/chart.min.js" crossorigin="anonymous"></script>
 <script>
     const base_url = "<?php echo base_url; ?>";
+    const esStaff = <?php echo in_array($_SESSION['rol'] ?? '', ['Administrador','Bibliotecario'], true) ? 'true' : 'false'; ?>;
+    const usuarioActualId = <?php echo (int)($_SESSION['id_usuario'] ?? 0); ?>;
+    const usuarioActualNombre = <?php echo json_encode($_SESSION['nombre'] ?? '', JSON_UNESCAPED_UNICODE); ?>;
 </script>
 <script src="<?php echo base_url; ?>Assets/js/sweetalert2.all.min.js"></script>
 <script type="text/javascript" src="<?php echo base_url; ?>Assets/js/pdfmake.min.js"></script>
 <script type="text/javascript" src="<?php echo base_url; ?>Assets/js/vfs_fonts.js"></script>
 <script type="text/javascript" src="<?php echo base_url; ?>Assets/js/datatables.min.js"></script>
 <script src="<?php echo base_url; ?>Assets/js/select2.min.js"></script>
-<script src="<?php echo base_url; ?>Assets/js/funciones.js"></script> 
+<script src="<?php echo base_url; ?>Assets/js/funciones.js?v=20260817-final1"></script> 
 
-<script src="<?php echo base_url; ?>Assets/js/fn_carrera.js"></script>
+<script src="<?php echo base_url; ?>Assets/js/fn_carrera.js?v=20260817-final1"></script>
 
 
-<script src="<?php echo base_url; ?>Assets/js/fn_libro.js"></script>
+<script src="<?php echo base_url; ?>Assets/js/fn_libro.js?v=20260817-final1"></script>
+<script src="<?php echo base_url; ?>Assets/js/fn_autor.js?v=20260817-final1"></script>
 <!-- Google analytics script-->
 <script type="text/javascript">
     if (document.location.hostname == 'pratikborsadiya.in') {
