@@ -43,11 +43,19 @@ class ReservasModel extends Query
         return $params?$this->selectAllPrepared($sql,$params):$this->selectAll($sql);
     }
     /**
-     * Horarios de entrega/devolución que ofrece la biblioteca. Debe
-     * coincidir exactamente con el backend Node y con
-     * src/data/horarios.js del frontend.
+     * Horario de atención de la biblioteca para retiro y devolución.
+     * Debe coincidir exactamente con el backend Node
+     * (HORA_APERTURA/HORA_CIERRE) y con src/data/horarios.js del
+     * frontend.
      */
-    private const HORARIOS = ['07:00','08:00','09:00','10:00','11:00','14:00','15:00','16:00','17:00'];
+    private const HORA_APERTURA = '07:00';
+    private const HORA_CIERRE = '20:00';
+    /** Cada cuántos minutos se prueba un horario candidato al sugerir el próximo libre. */
+    private const PASO_SUGERENCIA_MIN = 15;
+
+    private function horaDentroDeAtencion($horaStr){
+        return $horaStr >= self::HORA_APERTURA && $horaStr <= self::HORA_CIERRE;
+    }
 
     /**
      * Cuántas unidades de un libro están comprometidas (SOLICITADO,
@@ -99,21 +107,29 @@ class ReservasModel extends Query
 
         $horaSolicitada=date('H:i',strtotime($limite));
         $duracionSeg=strtotime($devolucionEstimada)-strtotime($limite);
-        $idx=array_search($horaSolicitada,self::HORARIOS,true);
-        $candidatos=$idx===false?self::HORARIOS:array_slice(self::HORARIOS,$idx+1);
 
-        foreach($candidatos as $horaCandidata){
-            $inicioCandidato=date('Y-m-d',strtotime($limite)).' '.$horaCandidata.':00';
-            $finCandidato=date('Y-m-d H:i:s',strtotime($inicioCandidato)+$duracionSeg);
+        $diaLimite=date('Y-m-d',strtotime($limite));
+        $cierreTs=strtotime($diaLimite.' '.self::HORA_CIERRE.':00');
+        $candidatoTs=strtotime($limite)+self::PASO_SUGERENCIA_MIN*60;
+
+        while($candidatoTs<=$cierreTs){
+            $inicioCandidato=date('Y-m-d H:i:s',$candidatoTs);
+            $finCandidato=date('Y-m-d H:i:s',$candidatoTs+$duracionSeg);
             if(!$probar($inicioCandidato,$finCandidato)){
-                return ['disponible'=>false,'conflictos'=>$conflictos,'sugerencia'=>['hora'=>$horaCandidata,'fecha_devolucion'=>$finCandidato]];
+                return ['disponible'=>false,'conflictos'=>$conflictos,'sugerencia'=>['hora'=>date('H:i',$candidatoTs),'fecha_devolucion'=>$finCandidato]];
             }
+            $candidatoTs+=self::PASO_SUGERENCIA_MIN*60;
         }
         return ['disponible'=>false,'conflictos'=>$conflictos,'sugerencia'=>null];
     }
 
     /** Consulta en vivo (AJAX) para que el formulario avise antes de confirmar. */
     public function verificarHorario(array $items,$limite,$devolucionEstimada){
+        $horaRetiro=date('H:i',strtotime($limite));
+        $horaDevolucion=date('H:i',strtotime($devolucionEstimada));
+        if(!$this->horaDentroDeAtencion($horaRetiro)||!$this->horaDentroDeAtencion($horaDevolucion)){
+            return ['disponible'=>false,'conflictos'=>[],'sugerencia'=>null,'motivo'=>'fuera_de_horario'];
+        }
         return $this->franjaDisponible($items,$limite,$devolucionEstimada);
     }
 
@@ -134,6 +150,11 @@ class ReservasModel extends Query
         $items=array_values(array_filter($items,fn($it)=>(int)($it['id_libro']??0)>0 && (int)($it['cantidad']??0)>0));
         if(!$items)return'sin_items';
         if(!$devolucionEstimada)return'sin_devolucion';
+
+        $horaRetiro=date('H:i',strtotime($limite));
+        $horaDevolucion=date('H:i',strtotime($devolucionEstimada));
+        if(!$this->horaDentroDeAtencion($horaRetiro))return'fuera_de_horario:retiro';
+        if(!$this->horaDentroDeAtencion($horaDevolucion))return'fuera_de_horario:devolucion';
         try{
             $this->beginTransaction();
 

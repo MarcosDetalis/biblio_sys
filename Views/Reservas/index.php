@@ -16,8 +16,12 @@
     <table class="table table-sm mt-2" id="tblCarritoReserva"><thead><tr><th>Libro</th><th>Cantidad</th><th></th></tr></thead><tbody></tbody></table>
     <div id="carritoVacio" class="text-muted small">Todavía no agregaste ningún libro.</div>
     <hr>
-    <div class="form-group"><label>Fecha límite de retiro</label><input type="datetime-local" id="fecha_limite_retiro" name="fecha_limite_retiro" class="form-control" required></div>
-    <div class="form-group"><label>Fecha estimada de devolución</label><input type="datetime-local" id="fecha_devolucion_estimada" name="fecha_devolucion_estimada" class="form-control" required></div>
+    <div class="form-group"><label>Fecha de retiro</label><input type="date" id="fecha_retiro" class="form-control" required></div>
+    <div class="form-group"><label>Hora de retiro (07:00 a 20:00)</label><input type="time" id="hora_retiro" class="form-control" min="07:00" max="20:00" step="300" required></div>
+    <div class="form-group"><label>Fecha estimada de devolución</label><input type="date" id="fecha_devolucion" class="form-control" required></div>
+    <div class="form-group"><label>Hora estimada de devolución (07:00 a 20:00)</label><input type="time" id="hora_devolucion" class="form-control" min="07:00" max="20:00" step="300" required></div>
+    <input type="hidden" id="fecha_limite_retiro" name="fecha_limite_retiro">
+    <input type="hidden" id="fecha_devolucion_estimada" name="fecha_devolucion_estimada">
     <div id="alertaHorarioReserva" class="alert alert-warning d-none small"></div>
     <div class="form-group"><label>Observación</label><textarea name="observacion" class="form-control"></textarea></div>
     <button class="btn btn-primary" type="submit">Registrar reserva</button>
@@ -72,12 +76,32 @@ function frmReserva(){
     carritoReserva=[];
     pintarCarritoReserva();
     let d=new Date(Date.now()+86400000);
-    document.getElementById('fecha_limite_retiro').value=d.toISOString().slice(0,16);
+    const pad=n=>String(n).padStart(2,'0');
+    document.getElementById('fecha_retiro').value=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    document.getElementById('hora_retiro').value='08:00';
     let dev=new Date(d.getTime()+3*3600000);
-    document.getElementById('fecha_devolucion_estimada').value=dev.toISOString().slice(0,16);
+    document.getElementById('fecha_devolucion').value=`${dev.getFullYear()}-${pad(dev.getMonth()+1)}-${pad(dev.getDate())}`;
+    document.getElementById('hora_devolucion').value='11:00';
+    actualizarFechaHoraOcultos();
     document.getElementById('alertaHorarioReserva').classList.add('d-none');
     $('#modalReserva').modal('show');
 }
+// Combina fecha_retiro+hora_retiro y fecha_devolucion+hora_devolucion en los
+// campos ocultos que espera el servidor ("YYYY-MM-DD HH:MM:00"), y vuelve a
+// consultar disponibilidad. Se llama cada vez que cambia cualquiera de los
+// 4 campos visibles (fecha/hora de retiro, fecha/hora de devolución).
+function actualizarFechaHoraOcultos(){
+    const fr=document.getElementById('fecha_retiro').value;
+    const hr=document.getElementById('hora_retiro').value;
+    const fd=document.getElementById('fecha_devolucion').value;
+    const hd=document.getElementById('hora_devolucion').value;
+    document.getElementById('fecha_limite_retiro').value=(fr&&hr)?`${fr} ${hr}:00`:'';
+    document.getElementById('fecha_devolucion_estimada').value=(fd&&hd)?`${fd} ${hd}:00`:'';
+    verificarHorarioReserva();
+}
+document.addEventListener('change',function(e){
+    if(e.target && ['fecha_retiro','hora_retiro','fecha_devolucion','hora_devolucion'].includes(e.target.id)) actualizarFechaHoraOcultos();
+});
 function agregarLibroReserva(){
     const sel=$('#reservaLibro');
     const idLibro=parseInt(sel.val()||0,10);
@@ -117,8 +141,8 @@ function verificarHorarioReserva(){
     const devolucion=document.getElementById('fecha_devolucion_estimada').value;
     if(!carritoReserva.length||!limite||!devolucion){alerta.classList.add('d-none');return;}
     const fd=new FormData();
-    fd.append('fecha_limite_retiro',limite.replace('T',' ')+':00');
-    fd.append('fecha_devolucion_estimada',devolucion.replace('T',' ')+':00');
+    fd.append('fecha_limite_retiro',limite);
+    fd.append('fecha_devolucion_estimada',devolucion);
     carritoReserva.forEach(it=>{fd.append('libros[]',it.id_libro);fd.append('cantidades[]',it.cantidad);});
     const http=new XMLHttpRequest();
     http.open('POST',base_url+'Reservas/verificarHorario',true);
@@ -135,9 +159,6 @@ function verificarHorarioReserva(){
         }catch(e){alerta.classList.add('d-none');}
     };
 }
-document.addEventListener('change',function(e){
-    if(e.target && (e.target.id==='fecha_limite_retiro' || e.target.id==='fecha_devolucion_estimada')) verificarHorarioReserva();
-});
 function registrarReserva(e){
     e.preventDefault();
     if(!carritoReserva.length){alertas('Agregue al menos un libro a la reserva','warning');return;}
