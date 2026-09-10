@@ -223,7 +223,7 @@ class EscanerQRModel extends Query
              ORDER BY l.titulo",[$idReserva]
         );
         $devueltos=$this->selectAllPrepared(
-            "SELECT pd.id_prestamo_detalle,l.titulo,p.fecha_devolucion
+            "SELECT pd.id_prestamo_detalle,l.titulo,pd.fecha_devolucion
              FROM prestamo_detalle pd
              JOIN prestamos p ON p.id_prestamo=pd.id_prestamo
              JOIN ejemplares e ON e.id_ejemplar=pd.id_ejemplar
@@ -375,7 +375,7 @@ class EscanerQRModel extends Query
 
             foreach($filas as $f){
                 $this->save("UPDATE ejemplares SET id_estado_ejemplar=1 WHERE id_ejemplar=?",[$f['id_ejemplar']]);
-                $this->save("UPDATE prestamo_detalle SET estado='DEVUELTO' WHERE id_prestamo_detalle=?",[$f['id_prestamo_detalle']]);
+                $this->save("UPDATE prestamo_detalle SET estado='DEVUELTO', fecha_devolucion=CURDATE() WHERE id_prestamo_detalle=?",[$f['id_prestamo_detalle']]);
                 $this->save("INSERT INTO ejemplar_movimiento(id_ejemplar,tipo_movimiento,referencia) VALUES(?,'DEVOLUCION',?)",[$f['id_ejemplar'],'prestamo_detalle #'.$f['id_prestamo_detalle']]);
             }
             $idsPrestamos=array_unique(array_column($filas,'id_prestamo'));

@@ -284,7 +284,7 @@ function mostrarReserva(data){
 
     if(data.devueltos && data.devueltos.length){
         html+=`<hr><p class="mb-1 text-muted"><strong>Ya devueltos</strong></p><ul class="list-unstyled text-muted small">`;
-        data.devueltos.forEach(it=>{ html+=`<li><i class="fa fa-check-circle"></i> ${it.titulo} (${it.fecha_devolucion})</li>`; });
+        data.devueltos.forEach(it=>{ html+=`<li><i class="fa fa-check-circle"></i> ${it.titulo}${it.fecha_devolucion?' ('+it.fecha_devolucion+')':''}</li>`; });
         html+='</ul>';
     }
 
