@@ -21,7 +21,7 @@ $(function () {
     tblLibros = $('#tblLibros').DataTable({
         ajax: { url: base_url + 'Libros/listar', dataSrc: '' },
         columns: [
-            {data:'id'}, {data:'titulo'}, {data:'cantidad'}, {data:'autor'}, {data:'editorial'},
+            {data:'id'}, {data:'titulo'}, {data:'cantidad'}, {data:'disponibles'}, {data:'autor'}, {data:'editorial'},
             {data:'categoria'}, {data:'foto'}, {data:'descripcion'}, {data:'estado'}, {data:'acciones'}
         ], language, responsive:true, bDestroy:true
     });

@@ -78,6 +78,7 @@
     <!-- Essential javascripts for application to work-->
     <script src="<?php echo base_url; ?>Assets/js/jquery-3.6.0.min.js"></script>
     <script src="<?php echo base_url; ?>Assets/js/bootstrap.bundle.min.js"></script>
+    <script src="<?php echo base_url; ?>Assets/js/sweetalert2.all.min.js"></script>
     <script src="<?php echo base_url; ?>Assets/js/main.js"></script>
     <script src="<?php echo base_url; ?>Assets/js/pace.min.js"></script>
     <script>

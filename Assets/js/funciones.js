@@ -173,7 +173,7 @@ function cargarNotificaciones(){
         const footer=document.getElementById('footerNotificaciones');
         if(footer){
             footer.innerHTML=esStaff
-                ? `<a href="${base_url}Configuracion/libros" target="_blank">Ver reporte de préstamos vencidos.</a>`
+                ? `<a href="${base_url}EscanerQr/reportes?estado=Vencida" target="_blank">Ver reporte de préstamos vencidos.</a>`
                 : `<a href="${base_url}EscanerQr/index">Ver mis reservas y préstamos.</a>`;
         }
     }).catch(()=>{});

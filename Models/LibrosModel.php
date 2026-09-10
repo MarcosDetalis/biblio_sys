@@ -6,6 +6,7 @@ class LibrosModel extends Query
     public function getLibros(){
         return $this->selectAll("SELECT l.id_libro AS id,l.titulo,
             COUNT(e.id_ejemplar) AS cantidad,
+            SUM(CASE WHEN e.id_estado_ejemplar=1 THEN 1 ELSE 0 END) AS disponibles,
             COALESCE(GROUP_CONCAT(DISTINCT CONCAT(a.nombres,' ',a.apellidos) SEPARATOR ', '),'Sin autor') AS autor,
             COALESCE(ed.nombre,'Sin editorial') AS editorial,
             COALESCE(m.nombre,'Sin categoría') AS categoria,

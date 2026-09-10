@@ -18,9 +18,10 @@ class ReservasModel extends Query
                 WHEN r.id_estado_reserva=5 THEN 'Vencida'
                 WHEN (SELECT COUNT(*) FROM reserva_detalle rdp WHERE rdp.id_reserva=r.id_reserva AND rdp.estado IN ('SOLICITADO','RESERVADO'))>0
                     THEN 'Reserva'
-                WHEN (SELECT COUNT(*) FROM prestamo_detalle pdp JOIN prestamos pp ON pp.id_prestamo=pdp.id_prestamo WHERE pp.id_reserva=r.id_reserva AND pdp.estado='PRESTADO')=0
-                     AND (SELECT COUNT(*) FROM prestamo_detalle pdv JOIN prestamos pv ON pv.id_prestamo=pdv.id_prestamo WHERE pv.id_reserva=r.id_reserva AND pdv.estado='DEVUELTO')=0
+                WHEN (SELECT COUNT(*) FROM reserva_detalle rde WHERE rde.id_reserva=r.id_reserva AND rde.estado='ENTREGADO')=0
                     THEN 'Cancelada'
+                WHEN (SELECT COUNT(*) FROM reserva_detalle rdc WHERE rdc.id_reserva=r.id_reserva AND rdc.estado IN ('CANCELADO','SIN_DISPONIBILIDAD'))>0
+                    THEN 'Parcial'
                 WHEN (SELECT COUNT(*) FROM prestamo_detalle pdp JOIN prestamos pp ON pp.id_prestamo=pdp.id_prestamo WHERE pp.id_reserva=r.id_reserva AND pdp.estado='PRESTADO')>0
                      AND (SELECT COUNT(*) FROM prestamo_detalle pdv JOIN prestamos pv ON pv.id_prestamo=pdv.id_prestamo WHERE pv.id_reserva=r.id_reserva AND pdv.estado='DEVUELTO')=0
                     THEN 'Retirado'
@@ -161,7 +162,14 @@ class ReservasModel extends Query
             foreach($items as $it){
                 $idLibro=(int)$it['id_libro'];$cantidad=(int)$it['cantidad'];
 
-                $libroInfo=$this->selectPrepared("SELECT titulo,id_restriccion,(SELECT COUNT(*) FROM ejemplares WHERE id_libro=libros.id_libro AND activo=1) AS total_ejemplares FROM libros WHERE id_libro=?",[$idLibro]);
+                // FOR UPDATE: bloquea la fila del libro mientras dura esta
+                // transacción, para que dos reservas del mismo libro creadas
+                // casi al mismo tiempo (por dos usuarios distintos) no puedan
+                // "pasar" la validación de franja horaria las dos a la vez
+                // -cada una viendo la base como si la otra todavía no
+                // existiera- y terminar permitiendo más reservas de las que
+                // el libro realmente tiene capacidad.
+                $libroInfo=$this->selectPrepared("SELECT titulo,id_restriccion,(SELECT COUNT(*) FROM ejemplares WHERE id_libro=libros.id_libro AND activo=1) AS total_ejemplares FROM libros WHERE id_libro=? FOR UPDATE",[$idLibro]);
                 if(!$libroInfo){$this->rollback();return'no_existe:'.$idLibro;}
 
                 // Nunca se puede pedir más de lo que ese libro tiene en total

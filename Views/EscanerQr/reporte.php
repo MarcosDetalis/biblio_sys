@@ -84,8 +84,16 @@ function limpiarFiltros(){
     aplicarFiltros();
 }
 window.addEventListener('load',function(){
+    // Si se llega con ?estado=Vencida en la URL (ej: desde el link de
+    // notificaciones), se preselecciona el filtro y se aplica de una,
+    // en vez de arrancar siempre con el listado sin filtrar.
+    const paramsIniciales=new URLSearchParams(window.location.search);
+    const estadoInicial=paramsIniciales.get('estado')||'';
+    if(estadoInicial) document.getElementById('fEstado').value=estadoInicial;
+    const qsInicial=armarQuery();
+
     tblReporte=$('#tblReporte').DataTable({
-        ajax:{url:base_url+'EscanerQr/reporte',dataSrc:function(json){actualizarContadores(json);return json;}},
+        ajax:{url:base_url+'EscanerQr/reporte'+(qsInicial?'?'+qsInicial:''),dataSrc:function(json){actualizarContadores(json);return json;}},
         columns:[
             {data:'numero_reserva'},
             {data:'usuario'},
@@ -97,7 +105,7 @@ window.addEventListener('load',function(){
         order:[[4,'desc']],
         language:{lengthMenu:'Mostrar _MENU_ Entradas',info:'Mostrando _START_ a _END_ de _TOTAL_ Entradas',infoEmpty:'Mostrando 0 a 0 de 0 Entradas',infoFiltered:'(Filtrado de _MAX_ total entradas)',zeroRecords:'Sin resultados encontrados',emptyTable:'No hay reservas',search:'Buscar:',processing:'Procesando...',paginate:{first:'Primero',last:'Último',next:'Siguiente',previous:'Anterior'}}
     });
-    document.getElementById('btnExportarPdf').href=base_url+'EscanerQr/reportePdf';
+    document.getElementById('btnExportarPdf').href=base_url+'EscanerQr/reportePdf'+(qsInicial?'?'+qsInicial:'');
 });
 </script>
 <?php include "Views/Templates/footer.php"; ?>

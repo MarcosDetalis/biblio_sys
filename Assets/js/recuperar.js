@@ -1,15 +1,10 @@
 let identidadRecuperar = { cedula: "", correo: "" };
 let resetTokenRecuperar = "";
 
-function mostrarAlerta(idAlerta, mensaje) {
-    const alerta = document.getElementById(idAlerta);
-    alerta.classList.remove("d-none");
-    alerta.innerHTML = mensaje;
-}
-
-function ocultarAlerta(idAlerta) {
-    document.getElementById(idAlerta).classList.add("d-none");
-}
+// Antes esta pantalla solo mostraba un texto chico dentro del formulario.
+// El lado cliente (React) usa ventanas emergentes con título e ícono para
+// cada paso (SweetAlert2) — se iguala acá para que el bibliotecario/admin
+// vea los mismos mensajes, con la misma claridad, en ambos lados.
 
 function irAPaso(paso) {
     document.getElementById("frmPaso1").classList.toggle("d-none", paso !== 1);
@@ -23,13 +18,12 @@ function habilitarBoton(idBoton, habilitado) {
 
 function frmSolicitarCodigo(e) {
     e.preventDefault();
-    ocultarAlerta("alertaPaso1");
 
     const cedula = document.getElementById("cedula").value.trim();
     const correo = document.getElementById("correo").value.trim();
 
     if (cedula === "" || correo === "") {
-        mostrarAlerta("alertaPaso1", "Completá tu cédula y tu correo");
+        Swal.fire({ icon: "warning", title: "Completá tu cédula y tu correo" });
         return;
     }
 
@@ -42,15 +36,20 @@ function frmSolicitarCodigo(e) {
         if (this.readyState !== 4) return;
         habilitarBoton("btnPaso1", true);
         if (this.status !== 200) {
-            mostrarAlerta("alertaPaso1", "No fue posible procesar la solicitud");
+            Swal.fire({ icon: "error", title: "No se pudo enviar el código", text: "No fue posible procesar la solicitud." });
             return;
         }
         const res = JSON.parse(this.responseText);
         if (res.icono === "success") {
             identidadRecuperar = { cedula, correo };
             irAPaso(2);
+            Swal.fire({
+                icon: "success",
+                title: "Código enviado",
+                text: "Si los datos son correctos, te enviamos un código de verificación a tu correo. Revisá también la carpeta de spam.",
+            });
         } else {
-            mostrarAlerta("alertaPaso1", res.msg);
+            Swal.fire({ icon: "error", title: "No se pudo enviar el código", text: res.msg });
         }
     };
 }
@@ -73,22 +72,25 @@ function reenviarCodigo(e) {
         if (this.readyState !== 4) return;
         boton.classList.remove("disabled");
         boton.innerHTML = "Reenviar código";
-        if (this.status === 200) {
-            const res = JSON.parse(this.responseText);
-            mostrarAlerta("alertaPaso2", res.msg);
-            document.getElementById("alertaPaso2").classList.remove("alert-danger");
-            document.getElementById("alertaPaso2").classList.add("alert-info");
+        if (this.status !== 200) {
+            Swal.fire({ icon: "error", title: "No se pudo reenviar", text: "No fue posible reenviar el código." });
+            return;
+        }
+        const res = JSON.parse(this.responseText);
+        if (res.icono === "success") {
+            Swal.fire({ icon: "success", title: "Código reenviado", text: "Te enviamos un nuevo código a tu correo." });
+        } else {
+            Swal.fire({ icon: "error", title: "No se pudo reenviar", text: res.msg });
         }
     };
 }
 
 function frmVerificarCodigo(e) {
     e.preventDefault();
-    ocultarAlerta("alertaPaso2");
 
     const codigo = document.getElementById("codigo").value.trim();
     if (codigo === "") {
-        mostrarAlerta("alertaPaso2", "Ingresá el código");
+        Swal.fire({ icon: "warning", title: "Ingresá el código" });
         return;
     }
 
@@ -106,7 +108,7 @@ function frmVerificarCodigo(e) {
         if (this.readyState !== 4) return;
         habilitarBoton("btnPaso2", true);
         if (this.status !== 200) {
-            mostrarAlerta("alertaPaso2", "No fue posible verificar el código");
+            Swal.fire({ icon: "error", title: "Código incorrecto", text: "No fue posible verificar el código." });
             return;
         }
         const res = JSON.parse(this.responseText);
@@ -114,17 +116,13 @@ function frmVerificarCodigo(e) {
             resetTokenRecuperar = res.resetToken;
             irAPaso(3);
         } else {
-            mostrarAlerta("alertaPaso2", res.msg);
-            document.getElementById("alertaPaso2").classList.remove("alert-info");
-            document.getElementById("alertaPaso2").classList.add("alert-danger");
+            Swal.fire({ icon: "error", title: "Código incorrecto", text: res.msg });
             // Si se agotaron los intentos o el código venció, hay que
             // volver a pedir uno nuevo desde cero.
             const msg = (res.msg || "").toLowerCase();
             if (msg.includes("agotaron") || msg.includes("inválido") || msg.includes("vencido")) {
-                setTimeout(function () {
-                    document.getElementById("frmPaso2").reset();
-                    irAPaso(1);
-                }, 2000);
+                document.getElementById("frmPaso2").reset();
+                irAPaso(1);
             }
         }
     };
@@ -132,17 +130,16 @@ function frmVerificarCodigo(e) {
 
 function frmRestablecer(e) {
     e.preventDefault();
-    ocultarAlerta("alertaPaso3");
 
     const passwordNueva = document.getElementById("passwordNueva").value;
     const confirmarPassword = document.getElementById("confirmarPassword").value;
 
     if (passwordNueva.length < 6) {
-        mostrarAlerta("alertaPaso3", "La contraseña debe tener al menos 6 caracteres");
+        Swal.fire({ icon: "warning", title: "La contraseña debe tener al menos 6 caracteres" });
         return;
     }
     if (passwordNueva !== confirmarPassword) {
-        mostrarAlerta("alertaPaso3", "Las contraseñas no coinciden");
+        Swal.fire({ icon: "warning", title: "Las contraseñas no coinciden" });
         return;
     }
 
@@ -160,23 +157,26 @@ function frmRestablecer(e) {
         if (this.readyState !== 4) return;
         habilitarBoton("btnPaso3", true);
         if (this.status !== 200) {
-            mostrarAlerta("alertaPaso3", "No fue posible restablecer la contraseña");
+            Swal.fire({ icon: "error", title: "No se pudo actualizar", text: "No fue posible restablecer la contraseña." });
             return;
         }
         const res = JSON.parse(this.responseText);
         if (res.icono === "success") {
-            alert(res.msg);
-            window.location = base_url;
+            Swal.fire({
+                icon: "success",
+                title: "Contraseña restablecida",
+                text: "Ya podés iniciar sesión con tu contraseña nueva.",
+            }).then(function () {
+                window.location = base_url;
+            });
         } else {
-            mostrarAlerta("alertaPaso3", res.msg);
+            Swal.fire({ icon: "error", title: "No se pudo actualizar", text: res.msg });
             const msg = (res.msg || "").toLowerCase();
             if (msg.includes("venció") || msg.includes("utilizada")) {
-                setTimeout(function () {
-                    document.getElementById("frmPaso1").reset();
-                    document.getElementById("frmPaso2").reset();
-                    document.getElementById("frmPaso3").reset();
-                    irAPaso(1);
-                }, 2000);
+                document.getElementById("frmPaso1").reset();
+                document.getElementById("frmPaso2").reset();
+                document.getElementById("frmPaso3").reset();
+                irAPaso(1);
             }
         }
     };

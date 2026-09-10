@@ -16,6 +16,7 @@
                                 <th>Id</th>
                                 <th>Titulo</th>
                                 <th>Cant</th>
+                                <th>Disp.</th>
                                 <th>Autor</th>
                                 <th>Editorial</th>
                                 <th>Categoría</th>

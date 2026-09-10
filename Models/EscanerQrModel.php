@@ -40,9 +40,10 @@ class EscanerQRModel extends Query
                     WHEN r.id_estado_reserva=5 THEN 'Vencida'
                     WHEN (SELECT COUNT(*) FROM reserva_detalle rdp WHERE rdp.id_reserva=r.id_reserva AND rdp.estado IN ('SOLICITADO','RESERVADO'))>0
                         THEN 'Reserva'
-                    WHEN (SELECT COUNT(*) FROM prestamo_detalle pdp JOIN prestamos pp ON pp.id_prestamo=pdp.id_prestamo WHERE pp.id_reserva=r.id_reserva AND pdp.estado='PRESTADO')=0
-                         AND (SELECT COUNT(*) FROM prestamo_detalle pdv JOIN prestamos pv ON pv.id_prestamo=pdv.id_prestamo WHERE pv.id_reserva=r.id_reserva AND pdv.estado='DEVUELTO')=0
+                    WHEN (SELECT COUNT(*) FROM reserva_detalle rde WHERE rde.id_reserva=r.id_reserva AND rde.estado='ENTREGADO')=0
                         THEN 'Cancelada'
+                    WHEN (SELECT COUNT(*) FROM reserva_detalle rdc WHERE rdc.id_reserva=r.id_reserva AND rdc.estado IN ('CANCELADO','SIN_DISPONIBILIDAD'))>0
+                        THEN 'Parcial'
                     WHEN (SELECT COUNT(*) FROM prestamo_detalle pdp JOIN prestamos pp ON pp.id_prestamo=pdp.id_prestamo WHERE pp.id_reserva=r.id_reserva AND pdp.estado='PRESTADO')>0
                          AND (SELECT COUNT(*) FROM prestamo_detalle pdv JOIN prestamos pv ON pv.id_prestamo=pdv.id_prestamo WHERE pv.id_reserva=r.id_reserva AND pdv.estado='DEVUELTO')=0
                         THEN 'Retirado'

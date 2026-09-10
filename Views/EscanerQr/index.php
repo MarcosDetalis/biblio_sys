@@ -14,6 +14,8 @@
         <li class="nav-item"><a class="nav-link" href="#" onclick="filtrarListado('Parcial',this)">Parcial</a></li>
         <li class="nav-item"><a class="nav-link" href="#" onclick="filtrarListado('Retirado',this)">Retirado</a></li>
         <li class="nav-item"><a class="nav-link" href="#" onclick="filtrarListado('Devuelto',this)">Devuelto</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" onclick="filtrarListado('Vencida',this)">Vencida</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" onclick="filtrarListado('Cancelada',this)">Cancelada</a></li>
     </ul>
     <div class="table-responsive mt-2"><table class="table table-bordered table-hover" id="tblTransacciones">
         <thead class="thead-dark"><tr><th>Reserva</th><th>Usuario</th><th>Libros</th><th>Estado</th><th>Fecha</th><th></th></tr></thead>
@@ -33,6 +35,7 @@
                 <div class="col-md-6">
                     <div id="reader"></div>
                     <div id="reader-file" class="d-none"></div>
+                    <button class="btn btn-outline-primary btn-sm btn-block mt-2" onclick="reanudarEscaneo()"><i class="fa fa-refresh"></i> Escanear otro código</button>
                     <div class="mt-2">
                         <label class="btn btn-outline-secondary btn-sm btn-block" for="pdfQrInput"><i class="fa fa-file-pdf-o"></i> Subir PDF con el código QR</label>
                         <input type="file" id="pdfQrInput" accept="application/pdf" class="d-none" onchange="leerPdfQr(this.files[0])">
@@ -92,7 +95,24 @@ window.addEventListener('load',function(){
             document.getElementById('result').innerHTML='<p class="text-muted">Escaneá un código o buscá arriba.</p>';
         }
         if(!scanner){
-            scanner=new Html5QrcodeScanner('reader',{qrbox:{width:250,height:250},fps:10});
+            // fps más alto + useBarCodeDetectorIfSupported: usa el
+            // decodificador nativo del navegador cuando está disponible.
+            // OJO: esa API nativa no siempre está disponible en Chrome de
+            // escritorio (depende del sistema operativo) — en ese caso cae
+            // solo al decodificador de siempre, sin mejora.
+            //
+            // videoConstraints: le pide a la cámara más resolución que la
+            // que usa por defecto (suele ser baja, ~640x480). Con más
+            // detalle en la imagen, el decodificador -sea cual sea el que
+            // termine usando el navegador- tarda menos en reconocer el
+            // código, sobre todo en webcams de escritorio con autoenfoque
+            // más lento (como una Logitech C270).
+            scanner=new Html5QrcodeScanner('reader',{
+                qrbox:{width:280,height:280},
+                fps:15,
+                experimentalFeatures:{useBarCodeDetectorIfSupported:true},
+                videoConstraints:{width:{ideal:1280},height:{ideal:720}}
+            });
             scanner.render(success,error);
         }
     });
@@ -174,9 +194,11 @@ function confirmarRetiroSeleccion(idReserva){
             mostrarBanner(r.msg,r.icono);
             if(r.icono==='success'){
                 recargarListado();
-                // Pequeña espera para que el mensaje de éxito realmente se
-                // alcance a leer antes de que se refresque el contenido del modal.
-                setTimeout(()=>gestionarReserva(idReserva),1200);
+                // A propósito NO se vuelve a consultar/mostrar el estado de la
+                // reserva acá: lo "pendiente de devolver" recién debe aparecer
+                // cuando alguien escanee o busque esta reserva de nuevo, en una
+                // visita posterior — no en el mismo momento del retiro.
+                document.getElementById('result').innerHTML='<div class="alert alert-success">Retiro confirmado. Para registrar la devolución, volvé a escanear o buscar esta reserva en una próxima visita.</div>';
             }else if(btn){
                 btn.disabled=false;btn.innerHTML='<i class="fa fa-check"></i> Confirmar retiro';
             }
@@ -209,7 +231,7 @@ function confirmarDevolucionSeleccion(idReserva){
         mostrarBanner(r.msg,r.icono);
         if(r.icono==='success'){
             recargarListado();
-            setTimeout(()=>gestionarReserva(idReserva),1200);
+            document.getElementById('result').innerHTML='<div class="alert alert-success">Devolución registrada.</div>';
         }else if(btn){
             btn.disabled=false;btn.innerHTML='<i class="fa fa-undo"></i> Confirmar devolución de lo tildado';
         }
@@ -275,7 +297,21 @@ function mostrarReserva(data){
     document.getElementById('result').innerHTML=html;
 }
 function success(decodedText){
+    // Se pausa la cámara apenas se lee un código: sin esto, mientras el
+    // papel con el QR siga enfrente de la cámara, el lector lo vuelve a
+    // detectar solo cada uno o dos segundos y dispara este mismo callback
+    // de nuevo -consultando el estado una y otra vez- sin que nadie haya
+    // pedido un nuevo escaneo. Eso hacía, por ejemplo, que apenas se
+    // confirmaba un retiro, la pantalla "saltara sola" a mostrar la
+    // devolución (porque el escaneo automático siguiente ya encontraba el
+    // libro como recién entregado). Para escanear a la próxima persona,
+    // hay que tocar "Escanear otro código".
+    if(scanner) scanner.pause(true);
     fetch(base_url+'EscanerQr/obtenerDatosQr/'+encodeURIComponent(decodedText)).then(r=>r.json()).then(mostrarReserva).catch(()=>document.getElementById('result').innerHTML='<div class="alert alert-danger">No fue posible consultar el QR.</div>');
+}
+function reanudarEscaneo(){
+    if(scanner){ scanner.resume(); }
+    document.getElementById('result').innerHTML='<p class="text-muted">Escaneá un código o buscá arriba.</p>';
 }
 function error(err){ /* Los errores de lectura continua no se muestran para evitar ruido. */ }
 
